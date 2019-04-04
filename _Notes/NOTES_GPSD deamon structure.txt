@@ -1,0 +1,95 @@
+GPSD deamon structure
+=================================
+
+(From high-level to low-level)
+
+Multiplexer:
+	- It is responsible for passing reports up to clients, accepting client
+	commands, and responding to hotplug notifications. It is essentially all
+	contained in one source file, gpsd.c, and never talks to the device
+	drivers directly.
+
+Core Library:
+	- A key feature of the core library is that it is responsible for switching
+	each GPS connection to using the correct device driver depending on the
+	packet type that the sniffer returns.
+	- The core library manages a session with a sensor device. The key entry
+	points are:
+		- Starting a session by opening the device and reading data from it,
+		hunting through baud rates and parity/stopbit combinations until the
+		packet sniffer achieves synchronization lock with a known packet type.
+		- Polling the device for a packet.
+		- Closing the device and wrapping up the session.
+
+Packet sniffer:
+	- Is responsible for mining data packets out of serial input streams. It's
+	basically a state machine that watches for anything that looks like one of
+	our 20 or so known packet types.
+	- Because devices can hotplug or change modes, the type of packet that will
+	come up the wire from a serial or USB port isn't necessarily fixed forever
+	by the first one recognized.
+
+Drivers:
+	- The key entry points are methods to parse a data packet into
+	time-position-velocity or status information, change its mode or baud rate,
+	probe for device subtype, etc.
+	- Auxiliary methods may support driver control operations, such as changing
+	the serial speed of the device.
+	- On the other hand, the core library will hands packets to the drivers
+	associated with its type. The driver's job is to mine data out of the packet
+	payload into a per-device session structure and set some status bits telling
+	the multiplexer layer what kind of data it got.
+		- (There seems to be two layers of drivers, one above the core library
+		and taking care of packets received from sensor, and one below it
+		controlling the sensor.)
+--------------------------------------------------------------------------------------------
+NOTES:
+	- The first three components (other than the multiplexer) are linked together
+	in a library called libgpsd and can be used separately from the multiplexer.
+	- Our other tools that talk to sensors directly, such as "gpsmon" and "gpsctl",
+	do it by calling into the "core library" and "driver layer" directly.
+	- The success of this layering approach is demonstrated in a couple of different
+	ways. One is that new device drivers are so easy to write that several have been
+	contributed by people not on the core team: the driver API is documented, and the
+	individual drivers are coupled to the core library only via pointers in a master
+	device types table.
+	- Another benefit is that system integrators can drastically reduce GPSD's
+	footprint for embedded deployment simply by electing not to compile in unused
+	drivers.
+	- A third benefit of the layering is that the daemon multiplexer can be detached
+	from atop the core library and replaced with simpler logic, such as the straight
+	batch conversion of sensor logfiles to JSON reports that the gpsdecode utility
+	does.
+		-> PERSONAL NOTE: We should probably do this as we are going to have a
+		Location Manager that will handle this task. Or keep this part and build
+		whatever extension we may want into the ASF layer, utilizing some code
+		reuse.
+			- In 2010, GPSD won the first Good Code Grant from the Alliance
+			for Code Excellence.
+			- GPSD has historically had an exceptionally low defect rate. The
+			project has been very aggressive about incorporating technology
+			for automated testing.
+
+DATA FLOW:
+	- The flow of data is as folows:
+		1 - Sensors send data to the packet sniffer, and this collects untill a
+		complete packet has been received.
+		2 - Data is forwarded with type description to the core library.
+		3 - The core library sends the packet to the driver handling that type of
+		packet.
+		4 - The driver will then raise a flag to indicate data available for
+		shipment to clients watching this device.
+		5 - The data is outputted to the multiplexer.
+		6 - The multiplexer uses exporters to send data to clients.
+			- Exporters available:
+				1 - The main exporter is the "socket" one. It generates a
+				report object in JSON and ships it to all the clients
+				watching the device. 
+				2 - There's a shared-memory exporter that copies the data
+				to a shared-memory segment.
+				3 - A third exporter, which ships position updates via
+				DBUS, is also available.
+			- Note - In either of these cases, it is expected that a client
+			library will unmarshal the data into a structure in the client
+			program's memory space.
+

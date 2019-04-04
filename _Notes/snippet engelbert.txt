@@ -1,0 +1,18 @@
+
+# find the partition or device to flash
+$ mount
+
+# FLASH (SDCARD) a partition or device
+$ sudo dd if=/home/developer/Desktop/bui3xx-image-eval.sdcard of=/dev/sd<partition> bs=1M && sync
+
+# use this !!!!!!! (latest build)
+$ sudo dd if=/home/developer/Desktop/repo_2/out/bui35x/tmp/deploy/images/eval/bui3xx-image-eval.sdcard of=/dev/sdb bs=1M && sync
+
+# use this !!!!!!! (latest nightly)
+$ sudo dd if=/home/developer/Desktop/repo_2/out/bui35x/tmp/deploy/images/eval/bui3xx-image-eval.sdcard of=/dev/sdb bs=1M && sync
+
+bsb install /home/developer/Desktop/repo_2/out/bui35x/tmp/work/cortexa9-vfp-neon-poky-linux-gnueabi/connectivity-test-app/1.0.0-r0/packages-split/connectivity-test-app/data/system/install-cache/connectivity-test-app.bpk
+
+bsb uninstall com.bosch.connectivity
+
+ssh root@192.168.1.100

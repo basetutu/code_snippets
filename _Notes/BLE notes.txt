@@ -1,0 +1,34 @@
+--------------------------------------------------------------------------------------------------
+
+In Bluetooth 4.0, BLE was introduced with a maximum payload of 33 bytes (not including Access Address and CRC fields). Each layer in the protocol stack takes its cut:
+
+2 bytes for packet header (type and length),
+4 bytes for MIC (when encryption is enabled),
+4 bytes for L2CAP header (channel ID and packet length),
+ATT protocol is left with 23 bytes, which is the default and minimal MTU for ATT protocol.
+With an ATT write request (or notification), 3 bytes are used by command type and attribute ID, 20 bytes are left for the attribute data.
+
+At the ATT level, this limit may be enlarged in two ways:
+
+Using fragmentation at the L2CAP level:
+
+L2CAP will split ATT PDUs in 27 bytes fragments (23 for the first one).
+
+Drawbacks:
+
+It needs memory on both sides,
+It is less reliable as packets may get lost by some implementation (even if spec do not speak about packet loss at the L2CAP level, it happens)
+Using packet length extension introduced in Bluetooth 4.2:
+
+Up to 251 bytes at the radio level, so 238 bytes available for attribute data.
+
+Drawbacks:
+
+Still new, needs hardware support, so not implemented everywhere (even if announcing BLE 4.2 support),
+
+Packet with longer airtime will have more chances of getting jammed, so longer packets implies more retransmissions.
+
+If both methods are used, L2CAP may use bigger fragments.
+
+---------------------------------------------------------------------------------------------------------
+

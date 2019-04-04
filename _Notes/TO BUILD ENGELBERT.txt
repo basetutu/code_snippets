@@ -1,0 +1,46 @@
+# These two patches are needed for te static repo to make a build
+
+# bosch_repo/build/yocto/poky/
+git fetch ssh://ghs1lr@rb-gerrit-ebike.de.bosch.com:29418/platform/build/yocto/poky refs/changes/86/1886/1 && git cherry-pick FETCH_HEAD
+
+# bosch_repo/os/u-boot/
+git fetch ssh://ghs1lr@rb-gerrit-ebike.de.bosch.com:29418/platform/os/linux refs/changes/63/2563/2 && git cherry-pick FETCH_HEAD
+(was already there)
+
+
+
+# Compile and run
+
+export C_INCLUDE_PATH='/usr/include:/usr/local/include:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/sysroots/eval/usr/include:/home/saeed/_ALL_MY_STUFF/bosch_clean/services/ublox-gnss/inc:/home/saeed/_ALL_MY_STUFF/bosch_clean/os/infrastructure/asf/src/cpp/asf/include:/home/saeed/_ALL_MY_STUFF/bosch_clean/appfw/html-runtime/inc:/home/saeed/_ALL_MY_STUFF/bosch_clean/appfw/system-server/inc:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/sysroots/eval/usr/include/system-server:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/sysroots/eval/usr/include/cef3:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/work-shared/gcc-5.2.0-r0/gcc-5.2.0/libstdc++-v3/include/std:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/sysroots/eval/usr/include/dbus-1.0:/home/saeed/_ALL_MY_STUFF/libs/dbus:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/sysroots/x86_64-linux/usr/lib/dbus-1.0/include/:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/sysroots/eval/usr/include/:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/work-shared/gcc-5.2.0-r0/gcc-5.2.0/libstdc++-v3/include/:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/work-shared/gcc-5.2.0-r0/gcc-5.2.0/libstdc++-v3/include'
+
+export CPLUS_INCLUDE_PATH='/usr/include:/usr/local/include:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/sysroots/eval/usr/include:/home/saeed/_ALL_MY_STUFF/bosch_clean/services/ublox-gnss/inc:/home/saeed/_ALL_MY_STUFF/bosch_clean/os/infrastructure/asf/src/cpp/asf/include:/home/saeed/_ALL_MY_STUFF/bosch_clean/appfw/html-runtime/inc:/home/saeed/_ALL_MY_STUFF/bosch_clean/appfw/system-server/inc:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/sysroots/eval/usr/include/system-server:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/sysroots/eval/usr/include/cef3:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/work-shared/gcc-5.2.0-r0/gcc-5.2.0/libstdc++-v3/include/std:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/sysroots/eval/usr/include/dbus-1.0:/home/saeed/_ALL_MY_STUFF/libs/dbus:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/sysroots/x86_64-linux/usr/lib/dbus-1.0/include/:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/sysroots/eval/usr/include/:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/work-shared/gcc-5.2.0-r0/gcc-5.2.0/libstdc++-v3/include/:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/work-shared/gcc-5.2.0-r0/gcc-5.2.0/libstdc++-v3/include'
+
+
+export CPLUS_INCLUDE_PATH='/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/work/cortexa9-vfp-neon-poky-linux-gnueabi/dbus/1.8.20-r0/image/usr/lib/dbus-1.0/include/:/home/saeed/_ALL_MY_STUFF/bosch_clean/out/bui35x/tmp/sysroots/eval/usr/include/dbus-1.0'
+
+
+g++ -Wall dbus_project_test.cpp -o dbus_project_test
+
+g++ -Wall convertAddressToIdentifier.cpp -o convertAddressToIdentifier && ./convertAddressToIdentifier 
+
+
+
+
+bitbake -c cleansstate linux-eso-cm
+bitbake -c cleansstate connectivity-test-app
+
+bitbake -c cleanall linux-eso-cm
+bitbake -c cleanall connectivity-test-app
+
+bitbake -c cleanall libdbushelper
+
+bitbake -c cleanall bluetooth-manager
+bitbake -c cleanall services-api
+bitbake -c cleanall bluetooth-manager-extension
+
+Eller lägga till ”--no-setscene” i make.sh när bitbake anropas.
+
+
+
+
+git checkout -b s_new_2 bosch-gerrit/bui3xx-develop && git status && git branch

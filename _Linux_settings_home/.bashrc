@@ -1,0 +1,214 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+#shopt -s globstar
+
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color) color_prompt=yes;;
+esac
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+#force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	color_prompt=yes
+    else
+	color_prompt=
+    fi
+fi
+
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# If this is an xterm set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+############################ Command Seperator ##################################
+if [ -f "$HOME/.bash_ps1" ]; then
+. "$HOME/.bash_ps1"
+fi
+
+########### Set the terminal header to show information about git ############
+#Set the terminal header to show information about git
+#if [ "$color_prompt" = yes ]; then
+    #Enable to show if there are non-commited changes (*) or non-staged changes (+)
+    export GIT_PS1_SHOWDIRTYSTATE=1
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[00;36m\]$(__git_ps1)\[\033[00m\]\$ '
+#else
+#    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+#fi
+unset color_prompt force_color_prompt
+
+############################ some more ls aliases ###########################
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+alias cls='printf "\033c"'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias grep='grep --color=auto'
+alias l='ls -CF'
+alias la='ls -A'
+alias ll='ls -alF'
+alias ls='ls --color=auto'
+alias openFolder='sudo xdg-open .'
+alias up='cd ..'
+
+############################ ENGELBERT RELATED ALIASES ###########################
+#use on host PC:
+alias start_dlt='cd tools/dlt-viewer-hack && sudo LD_LIBRARY_PATH=. ./dlt_viewer && cd ../..'
+
+alias location='bsb startdebug com.bosch.connectivity.location'
+alias location_unittest='bsb startdebug com.bosch.connectivity.locationunittest'
+alias wifi='bsb startdebug com.bosch.connectivity.wifi'
+alias wifi_unittest='bsb startdebug com.bosch.connectivity.wifiunittest'
+alias ble='bsb startdebug com.bosch.connectivity.bluetooth'
+alias ble_unittest='bsb startdebug com.bosch.connectivity.bleunittest'
+
+alias stop_app='bsb stopdebug'
+
+# Alternative to 'bsb install' and 'bsb startDebug'
+alias copyScreens='scp ~/_ALL_MY_STUFF/screens.json root@192.168.1.100:/data/system/db/screens.json'
+alias restartSSremote='ssh root@192.168.1.100 systemctl restart system-server'
+alias rebootbui='ssh root@192.168.1.100 reboot'
+
+alias bsb_install_1='copyScreens && croot && cd out/bui35x/ && bitbake -c cleanall connectivity-test-app && bitbake connectivity-test-app && cd ./tmp/work/cortexa9-vfp-neon-poky-linux-gnueabi/connectivity-test-app/1.0.0-r0/image/default/system/install-cache/ && scp connectivity-test-app.bpk root@192.168.1.100:/data/system/install-cache/ && croot && copyScreens && restartSSremote' # && sleep 5 && restartSSremote'
+alias bsb_install_2='copyScreens && croot && cd out/bui35x/ && bitbake -c cleanall connectivity-test-app && bitbake connectivity-test-app && cd ./../SDK/tools && ./bsb install /home/saeed/_ALL_MY_STUFF/bosch_may/out/bui35x/tmp/work/cortexa9-vfp-neon-poky-linux-gnueabi/connectivity-test-app/1.0.0-r0/image/default/system/install-cache/connectivity-test-app.bpk && croot && copyScreens && restartSSremote' # && sleep 5 && restartSSremote'
+
+alias make_loop='for i in {1..3}; do . proxyoff; ./make.sh; . proxyon; ./make.sh; done'
+#alias flash_bosch='sudo dd if=/home/saeed/_ALL_MY_STUFF/bui3xx.sdcard of=/dev/sdd bs=1M && sync'
+alias flash_me='croot && cd tools/mfg && ./flash.sh'
+alias make_me='croot && ./make.sh'
+
+alias croott='cd /home/saeed/_ALL_MY_STUFF/bosch_ref/'
+alias transfer='croott && scp -r ./out/bui35x/tmp/work/cortexa9-vfp-neon-poky-linux-gnueabi/html-runtime/1.0.0-r0/packages-split/html-runtime/* root@192.168.1.100:~ && scp -r ./tmp/work/cortexa9-vfp-neon-poky-linux-gnueabi/bluetooth-manager/1.0.0-r0/package/usr/bin/BluetoothServer root@192.168.1.100:~'
+alias compileandtransfer='cd out/bui35x/ && bitbake bluetooth-manager-extension && transfer && cd ../..'
+
+# Save uncommited changes to file on predefined place (stash)
+alias stash_me='git diff > /home/saeed/_ALL_MY_STUFF/_PATCH/_latest.diff'
+# Restore patch from file from predefined place (stash)
+
+# GIT COMMANDS
+alias grebasei='git rebase -i HEAD~5'
+alias gamend='git commit --amend'
+alias gstatus='git status'
+alias glog='git log'
+# REPO COMMANDS
+alias rstatus='repo status -j33'
+alias rgstatus="repo forall -c 'git status'"
+alias rsync='repo sync -j33 -f'
+
+# Aliases for installing ext,manager,html
+alias remount_drive='ssh root@192.168.1.100 mount -o remount,rw /'
+alias stop_system_server='ssh root@192.168.1.100 systemctl stop system-server'
+alias stop_bluetooth_manager='ssh root@192.168.1.100 systemctl stop bluetooth-manager'
+alias start_system_server='ssh root@192.168.1.100 systemctl start system-server'
+alias start_bluetooth_manager='ssh root@192.168.1.100 systemctl start bluetooth-manager'
+
+alias copy_ext='scp -r ./tmp/work/cortexa9-vfp-neon-poky-linux-gnueabi/bluetooth-manager-extension/1.0.0-r0/package/usr/lib/* root@192.168.1.100:/usr/'
+alias copy_html='scp -r ./tmp/work/cortexa9-vfp-neon-poky-linux-gnueabi/html-runtime/1.0.0-r0/packages-split/html-runtime/* root@192.168.1.100:/usr/bin/' # for installing extension and html-runtime
+alias copy_manager='scp -r ./tmp/work/cortexa9-vfp-neon-poky-linux-gnueabi/bluetooth-manager/1.0.0-r0/package/usr/bin/BluetoothServer root@192.168.1.100:/usr/bin/' # for installing manager
+
+alias bsb_install_ext='croot && cd out/bui35x && bitbake bluetooth-manager-extension && remount_drive && stop_system_server && copy_ext && start_system_server'
+alias bsb_install_html='croot && cd out/bui35x && bitbake html-runtime && remount_drive && stop_system_server && copy_html && start_system_server'
+alias bsb_install_manager='croot && cd out/bui35x && bitbake bluetooth-manager && remount_drive && stop_bluetooth_manager && echo bsb_install_manager && copy_manager && start_bluetooth_manager'
+alias bsb_install_manager_asf='croot && cd out/bui35x && bitbake bluetooth-manager-asf-test && remount_drive && stop_bluetooth_manager && copy_manager && start_bluetooth_manager'
+
+alias install_all='install_manager && install_html && install_ext'
+alias restart_btm='stop_bluetooth_manager && start_bluetooth_manager'
+alias restart_syss='ssh root@192.168.1.100 systemctl restart system-server'
+
+alias connect_to_bui='ssh root@192.168.1.100'
+
+alias copy_asf_client_for_testing='scp ./tmp/work/cortexa9-vfp-neon-poky-linux-gnueabi/bluetooth-manager-asf-test/1.0.0-r0/image/usr/bin/BluetoothManagerClient root@192.168.1.100:/home/root/'
+alias copy_manager_for_testing='scp ./tmp/work/cortexa9-vfp-neon-poky-linux-gnueabi/bluetooth-manager/1.0.0-r0/image/usr/bin/BluetoothServer root@192.168.1.100:/home/root/'
+
+alias bsb_install_manager_test='echo copy manager for running service && bsb_install_manager && echo copy_manager_for_testing && copy_manager_for_testing && stop_bluetooth_manager && connect_to_bui && cd ~ && ./BluetoothServer'
+alias bsb_install_asf_client_test='bsb_install_manager_asf && copy_asf_client_for_testing && stop_bluetooth_manager && ssh root@192.168.1.100 && cd ~ && ./BluetoothManagerClient'
+alias bsb_install_bluego='stop_bluetooth_manager && ssh root@192.168.1.100 systemctl stop bluego && remount_drive && scp dbus_bluego root@192.168.1.100:/usr/bin && ssh root@192.168.1.100 systemctl start bluego && start_bluetooth_manager'
+
+####################################################################################
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+export PATH=~/bin:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin\:$PATH

@@ -1,0 +1,8 @@
+RELEASE CHANGE LOG
+
+[Release] : v0.8.1 (bugfix)
+    - Fixed battery level indication.
+        * State of charge (SOC) value was converted to pro cent before use.
+    - Fixed magnetometer excessive current consumption.
+        * Changed configuration of interrupt lines to avoid power surge.
+

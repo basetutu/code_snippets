@@ -1,0 +1,8 @@
+openConnection: connect: No such file or directory
+cannot connect to brltty at :0
+Script for none started at run_im.
+Script for auto started at run_im.
+Script for default started at run_im.
+init: update-notifier-crash (/var/crash/_opt_teamviewer_tv_bin_TeamViewer_Desktop.0.crash) main process (1587) terminated with status 1
+init: Disconnected from notified D-Bus bus
+init: upstart-dbus-session-bridge main process (1599) terminated with status 1

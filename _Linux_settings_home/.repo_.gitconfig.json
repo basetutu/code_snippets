@@ -1,0 +1,35 @@
+{
+  "url.ssh://@rb-gerrit-ebike.de.bosch.com:29418/.insteadof": [
+    "ssh://rb-gerrit-ebike.de.bosch.com:29418/", 
+    "ssh://@rb-gerrit-ebike.de.bosch.com:29418/", 
+    "ssh://@rb-gerrit-ebike.de.bosch.com:29418/", 
+    "ssh://@rb-gerrit-ebike.de.bosch.com:29418/"
+  ], 
+  "color.ui": [
+    "auto"
+  ], 
+  "core.editor": [
+    "nano"
+  ], 
+  "url.https://github.com/.insteadof": [
+    "git://github.com/"
+  ], 
+  "user.email": [
+    "external.saeed.ghasemi@de.bosch.com"
+  ], 
+  "url.ssh://ghs1lr@rb-gerrit-ebike.de.bosch.com:29418/.insteadof": [
+    "ssh://rb-gerrit-ebike.de.bosch.com:29418/", 
+    "ssh://external.saeed.ghasemi@de.bosch.com@rb-gerrit-ebike.de.bosch.com:29418/", 
+    "ssh://external.saeed.ghasemi@de.bosch.com@rb-gerrit-ebike.de.bosch.com:29418/", 
+    "ssh://external.saeed.ghasemi@de.bosch.com@rb-gerrit-ebike.de.bosch.com:29418/", 
+    "ssh://external.saeed.ghasemi@de.bosch.com@rb-gerrit-ebike.de.bosch.com:29418/", 
+    "ssh://external.saeed.ghasemi@de.bosch.com@rb-gerrit-ebike.de.bosch.com:29418/", 
+    "ssh://external.saeed.ghasemi@de.bosch.com@rb-gerrit-ebike.de.bosch.com:29418/"
+  ], 
+  "user.name": [
+    "Saeed Ghasemi"
+  ], 
+  "http.https://github.com.sslverify": [
+    "false"
+  ]
+}

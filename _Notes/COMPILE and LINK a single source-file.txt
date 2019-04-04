@@ -1,0 +1,5 @@
+
+file ./mytest
+ldd ./mytest
+export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
+gcc -omytest test.c -L. -lgps -lm

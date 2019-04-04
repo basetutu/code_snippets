@@ -1,0 +1,24 @@
+[user]
+	name = Saeed Ghasemi
+	email = external.saeed.ghasemi@de.bosch.com
+[url "https://github.com/"]
+	insteadof = git://github.com/
+[http "https://github.com"]
+	sslverify = false
+[color]
+	ui = auto
+[url "ssh://ghs1lr@rb-gerrit-ebike.de.bosch.com:29418/"]
+	insteadof = ssh://rb-gerrit-ebike.de.bosch.com:29418/
+	insteadof = ssh://external.saeed.ghasemi@de.bosch.com@rb-gerrit-ebike.de.bosch.com:29418/
+	insteadof = ssh://external.saeed.ghasemi@de.bosch.com@rb-gerrit-ebike.de.bosch.com:29418/
+	insteadof = ssh://external.saeed.ghasemi@de.bosch.com@rb-gerrit-ebike.de.bosch.com:29418/
+	insteadof = ssh://external.saeed.ghasemi@de.bosch.com@rb-gerrit-ebike.de.bosch.com:29418/
+	insteadof = ssh://external.saeed.ghasemi@de.bosch.com@rb-gerrit-ebike.de.bosch.com:29418/
+	insteadof = ssh://external.saeed.ghasemi@de.bosch.com@rb-gerrit-ebike.de.bosch.com:29418/
+[url "ssh://@rb-gerrit-ebike.de.bosch.com:29418/"]
+	insteadof = ssh://rb-gerrit-ebike.de.bosch.com:29418/
+	insteadof = ssh://@rb-gerrit-ebike.de.bosch.com:29418/
+	insteadof = ssh://@rb-gerrit-ebike.de.bosch.com:29418/
+	insteadof = ssh://@rb-gerrit-ebike.de.bosch.com:29418/
+[core]
+	editor = nano

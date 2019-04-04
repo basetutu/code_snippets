@@ -1,0 +1,23 @@
+
+// See permissions
+ll /media/
+
+// Set user as owner
+sudo chown saeed:saeed /media/saeed/
+
+// Give group write permission
+sudo chmod g+w /media/saeed/
+
+// See group permissions for saeed user
+cat /etc/group | grep saeed
+gedit /etc/group
+
+// Give group all permissions to a folder
+sudo chmod a+wrx /media/saeed
+
+// add an existing user account to a group on your system
+sudo usermod -a -G examplegroup exampleusername
+// example:
+sudo usermod -a -G rslsync saeed
+
+

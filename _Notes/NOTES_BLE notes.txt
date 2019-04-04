@@ -1,0 +1,56 @@
+
+
+	
+	- Client
+	A device that initiates GATT commands and requests, and accepts responses, for example, a computer
+	or smartphone.
+	- Server
+	A device that receives GATT commands and requests, and returns responses, for example, a
+	temperature sensor.
+	- Characteristic
+	A data value transferred between client and server, for example, the current battery voltage.
+	- Service
+	A collection of related characteristics, which operate together to perform a particular function.
+	For instance, the Health Thermometer service includes characteristics for a temperature measurement
+	value, and a time interval between measurements.
+	- Descriptor
+	A descriptor provides additional information about a characteristic. For instance, a temperature
+	value characteristic may have an indication of its units (e.g. Celsius), and the maximum and
+	minimum values which the sensor can measure. Descriptors are optional - each characteristic can
+	have any number of descriptors.
+	
+	- Some service and characteristic values are used for administrative purposes - for instance,
+	the model name and serial number can be read as standard characteristics within the Generic
+	Access service. Services may also include other services as sub-functions; the main functions of
+	the device are so-called primary services, and the auxiliary functions they refer to are 
+	secondary services.
+
+- Identifiers
+Services, characteristics, and descriptors are collectively referred to as attributes, and identified by UUIDs. 
+
+Generic Access Profile (GAP)
+	- GAP is an acronym for the Generic Access Profile, and it controls connections and advertising
+	in Bluetooth. GAP is what makes your device visible to the outside world, and determines how two
+	devices can (or can't) interact with each other.
+	- There are two ways to send advertising out with GAP. The Advertising Data payload and the Scan
+	Response payload.
+	Both payloads are identical and can contain up to 31 bytes of data, but only the advertising
+	data payload is mandatory, since this is the payload that will be constantly transmitted out
+	from the device to let central devices in range know that it exists.
+
+Generic Attribute Profile, (GATT)
+	- it defines the way that two Bluetooth Low Energy devices transfer data back and forth using
+	concepts called Services and Characteristics.
+	- GATT comes into play once a dedicated connection is established between two devices, meaning
+	that you have already gone through the advertising process governed by GAP.
+	
+Attribute Protocol (ATT) (is a generic data protocol)
+	- is used to store Services, Characteristics and related data in a simple lookup table using
+	16-bit IDs for each entry in the table.
+ 
+Server/Client
+	- The peripheral is known as the GATT Server, which holds the ATT lookup data and service and
+	characteristic definitions, and the GATT Client (the phone/tablet), which sends requests to this
+	server.
+	
+	

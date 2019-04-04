@@ -1,0 +1,7 @@
+RELEASE NOTES (CHANGE LOG)
+
+[Release] : v0.10.1 (BUGFIX, feature and improvement for IT2 HW)
+    -   [IMP] bla bla bla
+        -    bla bla bla
+
+

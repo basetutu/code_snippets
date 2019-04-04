@@ -1,0 +1,116 @@
+https://e-bike.atlassian.net/wiki/display/IoTAEEB/SDK+-+BUI+System+API+-+base for both RFQs
+https://e-bike.atlassian.net/wiki/display/IoTAEEB/CRS+-+Settings+-+Connectivity+BLE UX for BLE - look for issues
+https://e-bike.atlassian.net/wiki/display/IoTAEEB/CRS+-+Settings+-+Connectivity+WiFi UX for Wifi - look for issues
+------------------------------------------------------------------------------------------------------------------
+BLE focused RFQ
+* Add a Bluetooth stack
+	# Driver will be in place after hardware bringup is done
+	# No stack delivered by Murata with the hardware
+	# UART HCI available for Bluetooth
+	# UART driver availble for 802.11
+	- Investigate limitations in available open source stacks
+	- Integrate the chosen stack
+
+* Add Bluetooth low energy profiles on top of the stack
+	- Add heart rate profile (HRP version 1.0)
+		# Most important
+		# Role as Collector
+		# All optional service characteristics in Device Information Service
+	- Add alert notification profile (ANP version 1.0)
+		# Most important
+		# Role as Client
+		# Support the optional procedures for unread alerts
+	- Add proximity profile (PXP version 1.0.1)
+		# Role as Monitor and Reporter
+		# Immediate Alert service and Tx Power source
+	- Add time profile (TIP version 1.0)
+		# Role as Time client
+	- Add cycling power profile (CPP version 1.1)
+		# Role as CPP observer and Collector
+		# Support Device Information Service and Battery Service
+	- Add cycling speed and cadence profile (CSCP version 1.0)
+		# Role as Collector
+		# Support Device Information Service
+	- Add environmental sensing profile (ESP version 1.0)
+		# Role as Collector
+		# Support Device Information Service and Battery Service
+	- Add pulse Oximeter Profile (PLXP vesion 1.0)
+		# Role as Collector
+		# Support Device Information Service, Bond Management Service, Current Time Service and the Battery -----------------------------------------------------------------------------------------------------------------
+Service
+	- Add find Me Profile (FMP version 1.0)
+		# Role as Find Me Target and Find Me Locator
+	- Add location and Navigation Profile (LNP version 1.0)
+		# Role as Collector and LN Sensor
+		# Support Device Information Service and Battery Service
+		
+* Add d-bus support for accessing BLE functionality
+	- Develop interface for using BLE over d-bus
+		# The interface shall give access to all relevant functions of the stack & profiles
+		# To be used by the Connectivity manager to allow applications to use the profiles
+		
+* Add BLE stack support
+	- Certification & qualification of stack & profiles
+		# Investigate needs and provide solutions for those needs
+	- Driver development & support
+		# UART HCI is available
+	- Optimize stack
+		# Investigate the startup behavior with regards to timing
+		# Investigate the memory and CPU usage of the stack
+		# Investigate limitations with supporting both GATT client and server and GAP central and GAP peripheral
+		# Investigate limitations in the number of parallel connections	
+------------------------------------------------------------------------------------------------------------------
+Connectivity focused RFQ
+* Add BLE support	
+	- Interoperability validation against a list of devices
+		# List of devices to be provided later
+	- Integrate into the settings manager	
+		# Saving passwords and other settings
+	- Develop test applications
+		# Develop 
+		
+* Add connectivity manager
+	# Both for BLE and 802.11
+	# To manage the networks and connections
+	# To provide JS APIs for CEF applications
+	# Shall use the BLE d-bus interface for access of profiles
+	- Create connectivity manager
+	- Implement BLE APIs
+	- Implement 802.11 APIs
+
+	
+* Add location manager
+	# JS APIs available for CEF applications
+	# To extend the Chromium GPS API with control of GNSS chip, e.g. on/off
+	- Create location manager
+	- Implement GNSS control APIs
+		
+* Add 802.11 support
+	- Driver development & support
+		# UART driver is available
+	- Wifi network device
+		# Shall be exposed as a network device in accordance to Linux standard
+		# Integration, configuration & maintainance of wpa-supplicant
+	- Integrate into the settings manager	
+		# Saving passwords and other settings
+	- Certification & qualification
+		# Investigate needs and provide solutions for those needs
+	- Validation of 802.11
+		# Develop test application for validation of 802.11
+	- Interoperability validation against a list of devices
+		# List of devices to be provided
+	- Integrate into the settings manager	
+		# Saving settings in a central location
+
+* Add GNSS support
+	- Driver development & support
+		# UART driver is available
+	- Implement missing parts of Chromium GPS API according W3C APIs
+		# There exist GPS APIs for other platforms than Linux for Chromium
+	- Certification & qualification
+		# Investigate needs and provide solutions for those needs
+	- Optimize GNSS
+		# Investigate timing for GNSS solution and if needed improve
+	- Assisted GNSS support
+		# Was the last position chip from uBlox
+		
