@@ -29,7 +29,7 @@ NOTE:
 Use always a new branch for each work.
 Start from the development branch and create from it after having rebased it.
 NOTE:
-Pulled patches wont be pushed with other local patches upon 'git push'
+Pulled commits wont be pushed with other local commits upon 'git push'
 
 =============================================================================================
 
@@ -120,6 +120,13 @@ git push --no-thin sigma HEAD:refs/for/master
 
 =============================================================================================
 
+#BEIJER
+
+# How to init repo with the manifest git repository
+repo init -u ssh://tfs.beijerelectronics.com/HmiDev/Git/_git/manifest -b krogoth-x2
+
+=============================================================================================
+
 #ENGELBERT:
 
 # repo init
@@ -193,6 +200,9 @@ git tag -d v0.9.1
 #To see all tags
 git tag
 
+# Become a master in git tag
+https://blog.daftcode.pl/how-to-become-a-master-of-git-tags-b70fbd9609d9
+
 =============================================================================================
 
 WORKING WITH REMOTES
@@ -212,9 +222,6 @@ git rebase -i
 
 // Ammending changes to the latest commit
 git commit --amend
-
-// Revert a patch
-git apply -R <patch>
 
 // Remove a commit from the git history
 git rebase --onto <commit-id>^ <commit-id>
@@ -238,7 +245,7 @@ git diff > sample.diff
 patch -p1 < sample.diff
 
 
-Skapa git .patch-filer
+Skapa git .patch-filer av existerande commits
 ======================
 1. Hitta basen, dvs commit, där patchar skall utgå från med git log.    
 2. Anropa
@@ -253,6 +260,44 @@ Applicera patcharna
 2. Kör git am filename.patch för vrje patch som skall läggas på. Börja med '0001'-filen.
    Ex: git am 0001-DRM-FW-extension.patch
 3. Kontrollera resultat med git log
+
+# Create a patch-file between two branches in git
+====================
+git diff master Branch1 > ../patchfile   # Create a patch-file between two branches
+git checkout Branch2    # create a new branch and switch to it
+git apply ../patchfile  # Apply the patch-file
+
+====================
+
+// Revert a patch
+git apply -R <patch>
+
+=============================================================================================
+
+# Patching files with git
+
+# Store one patch on file
+git format-patch -1 <SHA>
+# or a list of patches from SHA position (HEAD~x can be used as SHA)
+git format-patch -5 <SHA>
+git format-patch <from> <to>
+# or the last patch
+git format-patch -1 HEAD
+
+# Applying the patch:
+ # show stats
+git apply --stat file.patch
+ # check for error before applying
+git apply --check file.patch
+ # apply the patch finally
+git am < file.patch
+
+# To apply using 3-way merging which will let you resolve conflicts using git mergetool afterward (or editing manually)
+
+extra:
+
+# Apply a patch from file (.patch) to git history
+git am file.patch
 
 =============================================================================================
 
@@ -302,33 +347,7 @@ git init
 
 =============================================================================================
 
-// Store a patch on file
-git format-patch -1 3ea450edc23391d38aa4d3f29e31494c3c4efee0
-// or a list of patches
-git format-patch -5 3ea450edc23391d38aa4d3f29e31494c3c4efee0
-git format-patch <from> <to>
-// or the last patch
-git format-patch -1 HEAD
-
-
-# Applying the patch:
- # show stats
-git apply --stat file.patch
- # check for error before applying
-git apply --check file.patch 
- # apply the patch finally
-git am < file.patch 
-
-# To apply using 3-way merging which will let you resolve conflicts using git mergetool afterward (or editing manually)
-
-extra:
-
-# Apply a patch from file (.patch) to git history
-git am /home/saeed/Desktop/work_desktop/0001-adapt-to-newer-libgps.patch
-
-=============================================================================================
-
-// Show the changed done by a patch (-1 indicate that the changes should include the latest patch)
+// Show the changed done by a commit (-1 indicate that the changes should include the latest commit)
 git show -1
 
 ==============================================================================================
@@ -344,7 +363,7 @@ git log --graph --decorate --oneline --full-history
 # To see the 'Last Commit Date' as well as the author date
 git log --format=fuller
 
-# See the changes of the most recent patch (only commited changes)
+# See the changes of the most recent commit (only commited changes)
 git difftool HEAD~0 ^HEAD~1
 
 # How to define meld as difftool default
@@ -390,6 +409,10 @@ git submodule deinit -f googletest/ # remove -f to not to force this
 REPO
 =============================================================================================
 =============================================================================================
+
+# Understand the repo manifest xml
+https://docs.sel4.systems/RepoCheatsheet.html
+
 =============================================================================================
 
 repo sync

@@ -2,6 +2,45 @@
 ------------------------------------------------
 ------------------------------------------------
 ------------------------------------------------
+
+# How to write a bash script
+
+## To create a bash script, you place #!/bin/bash at the top of the file.
+## Then, change the permissions on the file to make it executable:
+chmod u+x scriptname
+# Special variables:
+echo $0      # prints the script name
+echo $1      # prints the first argument
+echo $2      # prints the second argument
+echo $9      # prints the ninth argument
+echo $10     # prints the first argument, followed by 0 
+echo ${10}   # prints the tenth argument
+echo $#      # prints the number of arguments
+echo $?      # prints the "exit status" of the previously executed process.
+echo $$      # prints the process id of current shell.
+## To reference the value of a variable, use a dollar sign, $:
+## It is sometimes necessary to wrap a reference to a variable is braces:
+echo ${foo} # prints $foo
+## You can start using any variable as an array:
+foo[0]="first"  # sets the first element to "first"
+foo[1]="second" # sets the second element to "second"
+## You can also use parentheses to create an array:
+foo=("a a a" "b b b" "c c c")
+echo ${foo[2]}  # prints "c c c"
+echo $foo       # prints "a a a"
+## To access all of the values in an array, use the special subscript @ or *:
+array=(a b c)
+echo $array       # prints a
+echo ${array[@]}  # prints a b c
+echo ${array[*]}  # prints a b c
+## To copy an array, use subscript @, surround it with quotes, and surround that with parentheses:
+foo=(a b c)
+bar=("${foo[@]}")
+echo ${bar[1]}    # prints b
+
+## Read more at:
+http://matt.might.net/articles/bash-by-example/
+
 ------------------------------------------------
 
 #Log in på device i två olika fönster med 
@@ -205,6 +244,13 @@ sudo chmod +x <filename>
 
 # Gives permission to the group 'g' to have write access to the folder
 chmod g+w Desktop/
+
+# Give full aces rights to current folder (permission)
+sudo chmod a+rwx .
+
+# Create a docker-group and add docker and the current user to the group to avoid 'sudo' (permission)
+sudo groupadd docker
+sudo usermod -aG docker $USER
 
 ------------------------------------------------
 # Adds the execution access right to the file
