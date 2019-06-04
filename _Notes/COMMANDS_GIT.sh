@@ -1,4 +1,16 @@
 =============================================================================================
+PX data:
+user: 5001
+pass: ?
+server: PX
+Database: SCE
+
+=============================================================================================
+=============================================================================================
+=============================================================================================
+=============================================================================================
+=============================================================================================
+=============================================================================================
 
 # How to setup a git server
 https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols
@@ -33,21 +45,21 @@ Pulled commits wont be pushed with other local commits upon 'git push'
 
 =============================================================================================
 
-// When code-review is received, checkout to that branch and make the changes.
-// When done, use:
+# When code-review is received, checkout to that branch and make the changes.
+# When done, use:
 git commit --amend
-// This will allow you to keep the last change-id that Garrit recognizes but allow you to change
-// the commit text.
+# This will allow you to keep the last change-id that Garrit recognizes but allow you to change
+# the commit text.
 
-// When this is done, use:
+# When this is done, use:
 git push ssh://saeed.ghasemi@sc-srv-p-bygg01:29418/hertz-polybus HEAD:refs/for/develop
-// This will push the changes to the remote develop-branch.
+# This will push the changes to the remote develop-branch.
 
 =============================================================================================
 
-// Branch visualization:
+# Branch visualization:
 git log --graph --decorate --oneline --full-history
-// or 
+# or 
 gitk
 
 =============================================================================================
@@ -61,13 +73,13 @@ git stash apply stash@{0}
 git stash list
 git stash show
 
-// Delete stash
+# Delete stash
 git stash drop stash@{0}
 
-// Unapply stash
+# Unapply stash
 git stash show -p stash@{0} | git apply -R
 
-// Create a new branch based on a stash (deletes the stash if successful)
+# Create a new branch based on a stash (deletes the stash if successful)
 git stash branch new_branch_name
 
 
@@ -85,18 +97,18 @@ https://github.com/blog/2019-how-to-undo-almost-anything-with-git
 
 =============================================================================================
 
-// Detach from all branches
+# Detach from all branches
 git checkout --detach
 
-// Get the project path (project ID)
+# Get the project path (project ID)
 git rev-parse --show-toplevel
 
 =============================================================================================
 
 # Creating new commands (alias) for git
-example:
+# example:
 git config --global alias.stash-unapply '!git stash show -p | git apply -R'
-// Created stash-unapply that performs 'stash show -p | git apply -R'
+# Created stash-unapply that performs 'stash show -p | git apply -R'
 
 =============================================================================================
 
@@ -171,17 +183,17 @@ git push ssh://ghs1lr@rb-gerrit-ebike.de.bosch.com:29418/platform/apps/connectiv
 
 HERTZ
 
-// Set Diffie helmand as handshaking method
+# Set Diffie helmand as handshaking method
 export GIT_SSH_COMMAND='ssh -o KexAlgorithms=+diffie-hellman-group1-sha1'
 
-// Push all commits to garrit develop-branch
+# Push all commits to garrit develop-branch
 git push ssh://saeed.ghasemi@sc-srv-p-bygg01:29418/hertz-polybus HEAD:refs/for/develop
 git push ssh://saeed.ghasemi@sc-srv-p-bygg01:29418/hertz-polybus HEAD:refs/heads/certification
 
-// Push a single commit to garrit develop-branch
+# Push a single commit to garrit develop-branch
 git push ssh://saeed.ghasemi@sc-srv-p-bygg01:29418/hertz-polybus <commit SHA>:refs/for/develop
 
-// get the hook that adds a Change-id to the commits, as used by gerrit:
+# get the hook that adds a Change-id to the commits, as used by gerrit:
 scp -o KexAlgorithms=+diffie-hellman-group1-sha1 -p -P 29418 saeed.ghasemi@sc-srv-p-bygg01:hooks/commit-msg .git/hooks/
 
 =============================================================================================
@@ -217,22 +229,22 @@ git remote add new_remote https://github.com/user/repo.git
 
 WORKING WITH COMMITS
 
-// Interactivt commit text modification
+# Interactivt commit text modification
 git rebase -i
 
-// Ammending changes to the latest commit
+# Ammending changes to the latest commit
 git commit --amend
 
-// Remove a commit from the git history
+# Remove a commit from the git history
 git rebase --onto <commit-id>^ <commit-id>
-// Use answer 3 and 4 from this article:
+# Use answer 3 and 4 from this article:
 http://stackoverflow.com/questions/37219/how-do-you-remove-a-specific-revision-in-the-git-history
 
-// Changing the author of a commit
+# Changing the author of a commit
 git commit --amend --author="Saeed Ghasemi <saeed.ghasemi@sigma.se>"
 
-// Squash commits into one. The commit that all squash-commits need to merge into must be set
-// to 'pick' and the others to 'squash'.
+# Squash commits into one. The commit that all squash-commits need to merge into must be set
+# to 'pick' and the others to 'squash'.
 git rebase -i HEAD~2
 
 
@@ -269,7 +281,7 @@ git apply ../patchfile  # Apply the patch-file
 
 ====================
 
-// Revert a patch
+# Revert a patch
 git apply -R <patch>
 
 =============================================================================================
@@ -329,25 +341,28 @@ git checkout HEAD <file-path as in git-status>
 
 SETTINGS
 
-// Change the remote branch that is being tracked (link to remote branch)
+# Change the remote branch that is being tracked (link to remote branch)
 git branch branch_name1 --set-upstream-to origin/branch_name2
 
-// To set the git-editor (Set core.editor in your Git config: )
+# To set the git-editor (Set core.editor in your Git config: )
 git config --global core.editor "nano"
-// or set the GIT_EDITOR environment variable:
+# or set the GIT_EDITOR environment variable:
 export GIT_EDITOR=nano
+
+# How to define meld as difftool default
+git config --global diff.tool meld
 
 =============================================================================================
 
-// Untrack/unstage a file
+# Untrack/unstage a file
 git rm --cached <filePath>
 
-// initialize a new git repository in current folder which starts the file versioning proccess
+# initialize a new git repository in current folder which starts the file versioning proccess
 git init
 
 =============================================================================================
 
-// Show the changed done by a commit (-1 indicate that the changes should include the latest commit)
+# Show the changed done by a commit (-1 indicate that the changes should include the latest commit)
 git show -1
 
 ==============================================================================================
@@ -366,9 +381,6 @@ git log --format=fuller
 # See the changes of the most recent commit (only commited changes)
 git difftool HEAD~0 ^HEAD~1
 
-# How to define meld as difftool default
-git config --global diff.tool meld
-
 ==============================================================================================
 
 # Print the code changes done between any two commit
@@ -376,7 +388,7 @@ git log <commit SHA>..<commit SHA> -p
 
 =============================================================================================
 
-// Show current uncommitted changes
+# Show current uncommitted changes
 git diff
 
 =============================================================================================
@@ -424,7 +436,7 @@ repo push
 
 -------------------------------------------------------
 
-// Get the project path (project ID)
+# Get the project path (project ID)
 repo forall -c 'git rev-parse --show-toplevel'
 
 -------------------------------------------------------

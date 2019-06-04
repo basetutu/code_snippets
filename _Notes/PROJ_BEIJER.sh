@@ -23,19 +23,30 @@ sudo dd if=beijer-image-dev-imx4a-7-20190521153259.rootfs.sdcard-beijer of=/dev/
 
 
 # How to build with docker
-sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-x2:/mnt/yocto-cache          -v ~/repo:/repo beijer/yocto
-sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache          -v ~/krogoth-r3:/repo beijer/yocto
-sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3-chromium:/mnt/yocto-cache -v ~/krogoth-r3-chromium:/repo beijer/yocto
-sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3-poky_no_fork:/mnt/yocto-cache -v ~/krogoth-r3-poky_no_fork:/repo beijer/yocto
+sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/repo:/repo     beijer/yocto # x2
+sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3:/repo     beijer/yocto
+sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3-chromium:/repo     beijer/yocto
+sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3-poky_no_fork:/repo     beijer/yocto
+sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3-poky_up_browser_rm_unused_patch:/repo     beijer/yocto
 
 
 source sources/poky/oe-init-build-env project
 export MACHINE=imx4a-7  # For krogoth-x2 not r3
 bitbake beijer-image-dev
+bitbake beijer-image
+bitbake beijer-image-dotnetcore
+bitbake beijer-mini-image
+
+export MACHINE=imx6qdlsabresd
+export MACHINE=qemux86
+bitbake core-image-soto
 
 # Use this line in the docker to start the bitbake build for krogoth-r3 and for development
 ./home/builder/.ssh/build.sh r3 dev
 ./home/builder/.ssh/build.sh x2 dev
+
+
+docker build -t beijer/yocto --file docker-images/Dockerfile-yocto docker-images
 
 
 # Skip dependencies

@@ -8,8 +8,8 @@
 # SCRIPT:
 # How to install Docker
 sudo apt-get update
-sudo apt-get remove docker docker-engine docker.io # Remove old versions
-sudo apt install docker.io
+sudo apt-get remove docker docker-engine docker.io docker-compose # Remove old versions
+sudo apt install docker.io docker-compose
 sudo systemctl start docker  # Start Docker
 sudo systemctl enable docker # Automate Docker to run at startup
 docker --version
@@ -61,7 +61,13 @@ docker container ls -aq
 FROM ubuntu:xenial
 
 USER root
-RUN apt-get update && apt-get dist-upgrade -y
+RUN apt-get clean && apt-get update && apt-get dist-upgrade -y
+
+# Set loacle to en_US.UTF-8
+RUN apt-get install locales
+RUN locale-gen en_US.UTF-8
+RUN update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+RUN export LANG=en_US.UTF-8
 
 # Standard Yocto dependencies
 RUN apt-get update && apt-get install --no-install-recommends -y gawk wget git-core diffstat unzip texinfo \
@@ -91,7 +97,12 @@ RUN git config --global user.email "builder@beijer.se" && git config --global us
 
 -----------------------------------------------------------
 
-# The build script (file: build.sh)
+# The build command
+docker build -t beijer/$basename --file docker-images/Dockerfile-$basename docker-images
+
+-----------------------------------------------------------
+
+# A build script (file: build.sh)
 # This builds two images that are called 'beijer/yocto' and 'beijer/yocto-teamcity'
 
 #!/bin/bash -ex

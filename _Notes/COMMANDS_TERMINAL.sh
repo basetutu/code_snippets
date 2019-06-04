@@ -1,6 +1,14 @@
 ------------------------------------------------
 ------------------------------------------------
+
+# Check drive/ file descriptor:
+sudo fdisk -l
+
 ------------------------------------------------
+
+# PS command
+ps | grep sshd | grep -v grep
+
 ------------------------------------------------
 
 # How to write a bash script
@@ -117,7 +125,7 @@ ps -A | grep WifiServer
 scp root@192.168.1.100:/data/system/db/screens.json ~/_ALL_MY_STUFF/
 
 # How to search for strings inside of files
-grep "text" -r -n --include=*.h .
+grep "text" -r -n --include="*.h" .
 grep "text" -r -n --include="*.h" --include="*.c" .
 grep "text" -r -n --include="*.*" --include="*.c" --exclude="*.svn-base" .
 grep -Rni DbusMsgCallMethod *
