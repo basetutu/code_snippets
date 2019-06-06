@@ -1,4 +1,5 @@
 =============================================================================================
+
 PX data:
 user: 5001
 pass: ?
@@ -12,8 +13,64 @@ Database: SCE
 =============================================================================================
 =============================================================================================
 
+# Document this here....
+# https://stackoverflow.com/questions/3319479/can-i-git-commit-a-file-and-ignore-its-content-changes
+
+=============================================================================================
+
+# SSH key generate (create)
+ssh-keygen -t rsa -b 4096 -C "smg200682@gmail.com"
+
+# If the SSH keyring is broken or some issue:
+SSH_AUTH_SOCK=0    git push -u origin master
+
+# see
+https://chrisjean.com/ubuntu-ssh-fix-for-agent-admitted-failure-to-sign-using-the-key/
+
+# Check connection go github
+ssh -T -ai ~/.ssh/id_rsa git@github.com
+
+=============================================================================================
+
 # How to setup a git server
 https://git-scm.com/book/en/v2/Git-on-the-Server-The-Protocols
+
+# Steps
+mkdir my_project
+cd my_project
+git init
+cd ..
+git clone --bare my_project my_project.git
+rm my_project
+# Send the bare git repo to the git-server to have remote access to it
+scp -r my_project.git ssh://user@git.example.com:/srv/git
+# Others can close using:
+git clone ssh://user@git.example.com:/srv/git/my_project.git
+# If they have write permission into this folder, they automtically have push access
+
+
+# An alternative optionis to do all this remotely via ssh on the server
+ssh root@git.example.com
+cd /srv/git/my_project.git
+git init --bare --shared
+# The shared option automatically add group write permissions to a repository properly
+
+# Give server access to users
+# ============================
+# If you want to place your repositories on a server that doesn’t have accounts for everyone on your
+# team for whom you want to grant write access, then you must set up SSH access for them. We assume
+# that if you have a server with which to do this, you already have an SSH server installed, and
+# that’s how you’re accessing the server.
+
+# There are a few ways you can give access to everyone on your team. The first is to set up accounts
+# for everybody, which is straightforward but can be cumbersome. You may not want to run adduser (or
+# the possible alternative useradd) and have to set temporary passwords for every new user.
+
+# A second method is to create a single git user account on the machine, ask every user who is to have
+# write access to send you an SSH public key, and add that key to the ~/.ssh/authorized_keys file of
+# that new git account. At that point, everyone will be able to access that machine via the git account.
+# This doesn’t affect the commit data in any way — the SSH user you connect as doesn’t affect the commits
+# you’ve recorded.
 
 =============================================================================================
 

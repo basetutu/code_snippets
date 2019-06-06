@@ -1,3 +1,15 @@
+
+-------------
+
+sudo apt-get remove openssh-client openssh-server
+sudo apt-get install openssh-client openssh-server
+
+https://www.ostechnix.com/create-list-installed-packages-install-later-list-centos-ubuntu/
+
+
+------------
+
+
 sudo apt-get install parcellite
 sudo apt install acl # Used to change folder permissions
 
