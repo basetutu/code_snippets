@@ -50,6 +50,7 @@ alias openFolder='sudo xdg-open .'
 alias up='cd ..'
 # GIT COMMANDS
 alias gbranch='git branch'
+alias gupdate='git fetch && echo -- fetched! -- && git rebase'
 alias grebasei='git rebase -i HEAD~25'
 alias gcontinue='git rebase --continue'
 alias gabort='git rebase --abort'

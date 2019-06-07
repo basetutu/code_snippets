@@ -1,4 +1,3 @@
-
 -------------
 
 sudo apt-get remove openssh-client openssh-server
@@ -6,12 +5,21 @@ sudo apt-get install openssh-client openssh-server
 
 https://www.ostechnix.com/create-list-installed-packages-install-later-list-centos-ubuntu/
 
-
 ------------
 
+# GCC (g++)
+sudo apt install gcc-7 gcc-8 g++-7 g++-8 -y
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 100 --slave /usr/bin/g++ g++ /usr/bin/g++-7
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 90  --slave /usr/bin/g++ g++ /usr/bin/g++-8
+sudo update-alternatives --config gcc
+# Now make the configuration
+
+--------------------------------------
 
 sudo apt-get install parcellite
 sudo apt install acl # Used to change folder permissions
+
+--------------------------------------
 
 # Install beyond compare
 wget https://www.scootersoftware.com/bcompare-4.2.9.23626_amd64.deb
@@ -23,9 +31,13 @@ sudo apt-get remove bcompare
 
 https://www.ostechnix.com/create-list-installed-packages-install-later-list-centos-ubuntu/
 
+--------------------------------------
+
 # PyCharm for python development
 sudo snap install pycharm-community --classic
 sudo snap install pycharm-professional --classic
+
+--------------------------------------
 
 # Resilio sync
 # GOOD LINK ==> https://www.linuxbabe.com/ubuntu/install-resilio-sync-btsync-ubuntu-18-04-18-10
@@ -70,4 +82,6 @@ sudo systemctl reload nginx # reload nginx if test passes
 
 # Open Resilio Sync Port in Firewall
 # see link resilio above
+
+--------------------------------------
 

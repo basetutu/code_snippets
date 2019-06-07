@@ -28,7 +28,7 @@ sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-
 sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3-chromium:/repo     beijer/yocto
 sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3-poky_no_fork:/repo     beijer/yocto
 sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3-poky_up_browser_rm_unused_patch:/repo     beijer/yocto
-
+sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/chromium_on_poky:/repo     beijer/yocto
 
 source sources/poky/oe-init-build-env project
 export MACHINE=imx4a-7  # For krogoth-x2 not r3
@@ -36,6 +36,8 @@ bitbake beijer-image-dev
 bitbake beijer-image
 bitbake beijer-image-dotnetcore
 bitbake beijer-mini-image
+
+ulimit -n 4096 # Raise the number of open file descriptors for the shell
 
 export MACHINE=imx6qdlsabresd
 export MACHINE=qemux86
