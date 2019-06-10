@@ -189,6 +189,11 @@ git push --no-thin sigma HEAD:refs/for/master
 
 =============================================================================================
 
+# Push a branch to remote
+git push -u origin feature_branch_name
+
+=============================================================================================
+
 #BEIJER
 
 # How to init repo with the manifest git repository

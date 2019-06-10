@@ -121,8 +121,39 @@ done
 docker-compose up -d --remove-orphans
 
 -----------------------------------------------------------
+
+# Save a non-runnig docker image
+docker save image-name | gzip > doker-image.tar.gz
+docker save image-name | zip > doker-image.zip
+
+# Load a docker image
+gzcat docker-image.tar.gz | docker load
+
 -----------------------------------------------------------
+
+# Remove all images and containers
+docker system prune -a
+# Remove all dangling images and containers
+docker system prune
+# Remove dangling images
+docker images purge
+
 -----------------------------------------------------------
+
+# List all containers
+docker ps -a
+
+# Remove a container upon exit
+docker run --rm ...
+
 -----------------------------------------------------------
+
+# To run an image
+sudo docker run --rm -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/chromium_on_poky:/repo  --workdir=/repo        beijer/yocto
+
 -----------------------------------------------------------
+
+# How to build a docker image
+docker build -t image-name --file docker-images/Dockerfile docker-images
+
 -----------------------------------------------------------

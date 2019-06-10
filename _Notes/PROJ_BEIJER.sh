@@ -23,12 +23,12 @@ sudo dd if=beijer-image-dev-imx4a-7-20190521153259.rootfs.sdcard-beijer of=/dev/
 
 
 # How to build with docker
-sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/repo:/repo     beijer/yocto # x2
-sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3:/repo     beijer/yocto
-sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3-chromium:/repo     beijer/yocto
-sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3-poky_no_fork:/repo     beijer/yocto
-sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3-poky_up_browser_rm_unused_patch:/repo     beijer/yocto
-sudo docker run -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/chromium_on_poky:/repo     beijer/yocto
+sudo docker run --rm -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/repo:/repo --workdir=/repo                     beijer/yocto # x2
+sudo docker run --rm -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3:/repo --workdir=/repo               beijer/yocto
+sudo docker run --rm -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3-chromium:/repo --workdir=/repo      beijer/yocto
+sudo docker run --rm -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3-poky_no_fork:/repo --workdir=/repo  beijer/yocto
+sudo docker run --rm -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/krogoth-r3-poky_up_browser_rm_unused_patch:/repo --workdir=/repo beijer/yocto
+sudo docker run --rm -it -v ~/.ssh:/home/builder/.ssh -v ~/yocto-cache-r3:/mnt/yocto-cache -v ~/chromium_on_poky:/repo  --workdir=/repo        beijer/yocto
 
 source sources/poky/oe-init-build-env project
 export MACHINE=imx4a-7  # For krogoth-x2 not r3
@@ -55,3 +55,20 @@ docker build -t beijer/yocto --file docker-images/Dockerfile-yocto docker-images
 bitbake -b chromium_48.0.2548.0
 # Build dependencies
 bitbake chromium_48.0.2548.0
+
+
+
+-------------------------
+
+
+* working on k_beijer_layers
+
+* seperated meta-beijer into two folders
+** meta-myarm (bsp)
+** meta-general-layer (webpanel)
+
+Modify the layer settings of webpanel to compelete the job...
+Use a script tool if it exists.
+
+
+
