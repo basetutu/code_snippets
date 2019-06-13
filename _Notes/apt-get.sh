@@ -18,6 +18,7 @@ sudo update-alternatives --config gcc
 
 sudo apt-get install parcellite
 sudo apt install acl # Used to change folder permissions
+sudo apt install gnome-screenshot
 
 --------------------------------------
 

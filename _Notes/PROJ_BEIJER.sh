@@ -7,8 +7,8 @@ git tag -a krogoth-15.0.1 f5da2a5913 -m "Message here"
 # How to init repo with the manifest git repository
 repo init -u ssh://tfs.beijerelectronics.com/HmiDev/Git/_git/manifest -b krogoth-x2
 repo init -u ssh://tfs.beijerelectronics.com/HmiDev/Git/_git/manifest -b krogoth-r3
+repo init -u ssh://tfs.beijerelectronics.com/HmiDev/Git/_git/manifest -b thud-chrom75-r4
 repo sync
-
 
 
 # How to install repo
@@ -69,6 +69,16 @@ bitbake chromium_48.0.2548.0
 
 Modify the layer settings of webpanel to compelete the job...
 Use a script tool if it exists.
+
+
+---------------------------
+
+
+
+töm cache
+qemuarm32
+Spara undan och snabb dokumentera
+review innan push
 
 
 
