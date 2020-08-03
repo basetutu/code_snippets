@@ -1,0 +1,17 @@
+waagc/numStates         4 
+waagc/numThresholds     2   /* Nbr of threshold (level detection) to evaluate with for low-level detection. */
+waagc/numLowTransitions 6   /* Calculated number of transitions to lower states. */
+waagc/numLowDetectors   12  /* Total number of low-level detectors. */
+waagc/thresholdsHi          /* This isthe level that 
+waagc/thresholdsLo          /* Threshold level */   /* 12x  UL_[0-31]_MCB_AGC_WDET_Sn_Gm_LO_Lk  (n,m,k) */
+waagc/thresholdsLoTime      /* Min durattion time */  /* 12x  UL_[0-31]_MCB_AGC_WDET_Sn_Gm_LO_Dk  (n,m,k) */
+waagc/timeMinDecision       /* Minimum Time Timer */ /* Alow for additional low level detection before transition evaluation. */
+waagc/timeMinInterval       /* Repettition Timer */ /* Reduces transition frequency to lower states. */
+waagc/thresholdsHi          /* Threshold for High-level detection. */
+waagc/settleTime            /* Short AGC operation pause time after AGC state transition to allow the new state to settle. 0 to 1 us. */
+waagc/
+waagc/
+waagc/
+
+
+
