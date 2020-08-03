@@ -1,0 +1,968 @@
+Option Explicit
+
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+' DEFINES
+'''''''''''''''''''''''''''''''''''''''''''''''''''
+
+''''''''''''''''
+' BIT POSITION
+''''''''''''''''
+
+'Commom info (SLOT-INFO)
+Public Const PL_CARRIER_ID_pos As Byte = 0          'The Byte type is unsigned in VBA
+Public Const PL_SUBFRAME_NBR_pos As Byte = 0
+Public Const PL_SLOT_TYPE_pos As Byte = 4
+Public Const PL_SLOT_NBR_pos As Byte = 0
+Public Const PL_START_SYMBOL_pos As Byte = 0
+Public Const PL_NBR_OF_SYMBOLS_pos As Byte = 0
+Public Const PL_BASE_NUMEROLOGY_pos As Byte = 0
+Public Const PL_MODULATION_pos As Byte = 4
+'Symbol specific info (SLOT-INFO)
+Public Const PL_SYMBOL_LENGTH_pos As Byte = 0
+Public Const PL_SYMBOL_TYPE_pos As Byte = 5
+Public Const PL_SYMBOL_POWER_pos As Byte = 0
+'Additional info array (SLOT-INFO)
+Public Const PL_ADDINFO_LENGTH_pos As Byte = 0
+Public Const PL_FEATURE_INDICATION_pos As Byte = 0
+Public Const PL_FEATURE_LENGTH_pos As Byte = 0
+
+'MCAC message packet
+Public Const PL_MCAC_NBR_OF_CAL_pos As Byte = 0
+Public Const PL_MCAC_RD_RES_pos As Byte = 6
+Public Const PL_MCAC_ACC_pos As Byte = 0
+Public Const PL_MCAC_CONF_pos As Byte = 0
+Public Const PL_MCAC_START_SYMBOL_pos As Byte = 0
+Public Const PL_MCAC_END_SYMBOL_pos As Byte = 0
+
+''''''''''''''''
+' FIELD MASKS
+''''''''''''''''
+'Commom info (SLOT-INFO)
+Public Const PL_CARRIER_ID_msk As Byte = "&HFF"
+Public Const PL_SLOT_LENGTH_TYPE_msk As Byte = "&HF0"
+Public Const PL_SUBFRAME_NBR_msk As Byte = "&H0F"
+Public Const PL_SLOT_NBR_msk As Byte = "&H1F"
+Public Const PL_START_SYMBOL_msk As Byte = "&H3F"
+Public Const PL_NBR_OF_SYMBOLS_msk As Byte = "&H3F"
+Public Const PL_BASE_NUMEROLOGY_msk As Byte = "&H0F"
+Public Const PL_MODULATION_msk As Byte = "&HF0"
+'Symbol specific info (SLOT-INFO)
+Public Const PL_SYMBOL_LENGTH_msk As Byte = "&H1F"
+Public Const PL_SYMBOL_TYPE_msk As Byte = "&HE0"
+Public Const PL_SYMBOL_POWER_msk As Byte = "&H3F"
+'Additional info array (SLOT-INFO)
+Public Const PL_ADDINFO_LENGTH_msk As Byte = "&HFF"
+Public Const PL_FEATURE_INDICATION_msk As Byte = "&HFF"
+Public Const PL_FEATURE_LENGTH_msk As Byte = "&HFF"
+
+'MCAC message packet
+Public Const PL_MCAC_NBR_OF_CAL_msk As Byte = "&H3F"
+Public Const PL_MCAC_RD_RES_msk As Byte = "&H40"
+Public Const PL_MCAC_ACC_msk As Byte = "&H01"
+Public Const PL_MCAC_CONF_msk As Byte = "&HFF"
+Public Const PL_MCAC_START_SYMBOL_msk As Byte = "&H3F"
+Public Const PL_MCAC_END_SYMBOL_msk As Byte = "&H3F"
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Byte positions in the GENERIC AxC packet containing the SLOT-INFO
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Public Const PL_POS_CARRIER = 14
+Public Const PL_POS_SLOT_LENGTH_TYPE_AND_SUBFRAME = 15
+Public Const PL_POS_SLOT_NBR = 16
+Public Const PL_POS_START_SYM = 17
+Public Const PL_POS_NBR_OF_SYM = 18
+Public Const PL_POS_MODULATION_NUMEROLOGY = 19
+Public Const PL_POS_SPECIFIC_INFO_1 = 20
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Byte positions in the AxC packet
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Public Const HEAD_POS_ID = 1
+Public Const HEAD_POS_TYPE = 2
+Public Const HEAD_POS_STD = 3
+Public Const HEAD_POS_RADIO_FRAME_NBR_F = 8
+Public Const HEAD_POS_HYPER_FRAME = 9
+Public Const HEAD_POS_BASIC_FRAME = 10
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Specific info field values
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Public Const SYMB_TYPE_DL = 0 'Downlink
+Public Const SYMB_TYPE_SW = 1 'Switch
+Public Const SYMB_TYPE_UL = 2 'Uplink
+Public Const SYMB_TYPE_ULS = 3 'Uplink with switch
+Public Const SYMB_TYPE_GAP = 5 'Guard Period (GAP)
+
+Public Const SYMB_LENGTH_L_CP = 0 'Long normal CP
+Public Const SYMB_LENGTH_S_CP = 1 'Short normal CP
+Public Const SYMB_LENGTH_EXT_CP = 2 'Extended CP
+
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+#If VBA7 Then
+    Public Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal milliseconds As LongPtr) 'MS Office 64 Bit
+#Else
+    Public Declare Sub Sleep Lib "kernel32" (ByVal milliseconds As Long) 'MS Office 32 Bit
+#End If
+
+Private Type SYSTEMTIME
+    Year As Integer
+    Month As Integer
+    DayOfWeek As Integer
+    Day As Integer
+    Hour As Integer
+    Minute As Integer
+    Second As Integer
+    milliseconds As Integer
+End Type
+
+Private Declare Sub GetSystemTime Lib "kernel32" (lpSystemTime As SYSTEMTIME)
+
+Public Function GetMyMilSeconds() As String
+
+    Dim tSystem As SYSTEMTIME
+    
+    Dim sRet As Long
+    
+    GetSystemTime tSystem
+    
+    sRet = Format(tSystem.Second * 100 + tSystem.milliseconds)
+    
+    GetMyMilSeconds = sRet
+
+End Function
+
+
+Sub browseForCPCfile()
+    Debug.Print "------------------ browseForCPCfile()-------------------"
+    
+    Dim strFileToOpen As String
+
+    'strFileToOpen = Application.GetOpenFilename _
+    '  (Title:="Please choose a CPC file to open", _
+    '  FileFilter:="CPC Files *.cpc* (*.cpc*),")
+
+    'If strFileToOpen = "" Then
+    '    MsgBox "No file selected.", vbExclamation, "User aborted!"
+    '    Exit Sub
+    'Else
+    '    'Workbooks.Open Filename:=strFileToOpen
+    'End If
+
+    'Debug.Print "Picked file: "; strFileToOpen
+    
+    'visualizeCPC (strFileToOpen)
+    parseCPC ("C:\Users\ehaagse\Desktop\COMMON\PROJ_TYRA\CPC files\NR_FR2_100M_udc3_120_64qam.cpc")
+    
+    'generateVisualization
+    
+End Sub
+
+'Sub Break_String()
+'    Dim i As Integer
+'    Dim WrdArray() As String
+'    Dim text_string As String
+'    Dim strg As String
+'    text_string = "Welcome to Excel Trick"
+'    WrdArray() = Split(text_string)
+'    For i = LBound(WrdArray) To UBound(WrdArray)
+'      strg = strg & vbNewLine & "Part No. " & i & " - " & WrdArray(i)
+'    Next i
+'    MsgBox strg
+'End Sub
+
+Function SHIFT_R(val As Byte, bits As Byte) As Byte
+    SHIFT_R = Application.WorksheetFunction.Bitrshift(val, bits)
+End Function
+
+Function SHIFT_L(val As Byte, bits As Byte) As Byte
+    SHIFT_L = Application.WorksheetFunction.Bitlshift(val, bits)
+End Function
+
+Function getHexByte(value As String) As Byte
+    getHexByte = val("&h" & Right(value, 2))
+End Function
+
+Sub BitRightShiftTest()
+    Debug.Print "---------------------------------------------------------------"
+
+    Debug.Print "---- get ------"
+    
+    Debug.Print "getHexByte( 0x01): "; getHexByte(" 0x01") '1
+    Debug.Print "getHexByte( 0x0F): "; getHexByte(" 0x0F") '15
+    Debug.Print "getHexByte( 0xF0): "; getHexByte(" 0xF0") '240
+    Debug.Print "getHexByte( 0xF0): "; getHexByte(" 0x20") '32
+    Debug.Print "getHexByte( 0xAB): "; getHexByte(" 0xAB") '171
+    Debug.Print "h And val(FF): "; 10 Xor val("&hFF") '245
+    'Debug.Print Application.WorksheetFunction.Bitrshift(h, 4)
+    
+    Debug.Print "----- create -----"
+
+    Dim field As Byte
+    field = 0
+    Debug.Print field
+    
+    field = field Or SHIFT_L(3, PL_SYMBOL_LENGTH_pos)
+    Debug.Print field
+    
+    field = field Or SHIFT_L(2, PL_SYMBOL_TYPE_pos)
+    Debug.Print field
+    
+    Debug.Print "----- read -----"
+    
+    Debug.Print "sym length: "; field And PL_SYMBOL_LENGTH_msk
+    Debug.Print "sym type: "; SHIFT_R(field And PL_SYMBOL_TYPE_msk, PL_SYMBOL_TYPE_pos)
+    Debug.Print field
+    
+    
+End Sub
+
+
+
+Sub parseCPC(strFileToOpen)
+    Debug.Print "------------------ parseCPC()-------------------"
+    
+    'The name of the sheets to operate in
+    Const frontPageName           As String = "Front page"
+    Const browserSheetName        As String = "CPC file browser"
+    Const visualizationSheetName  As String = "Visualized Output"
+    'frontPageSheet = "Front page"
+    'browserSheetName = "CPC file browser"
+    'visualizationSheetName = "Visualized Output"
+    
+    'Specific common field of importance
+    Const optionRangeTimeAdv As String = "F21"
+    
+    'Creating reference to specific sheets
+    Dim frontPageSheet          As Range
+    Dim browserSheet            As Range
+    Dim visualizationSheet      As Range
+    Set frontPageSheet = ThisWorkbook.Worksheets(frontPageName).Range("A1")
+'    Set browserSheet = ThisWorkbook.Worksheets(browserSheetName).Range("A1") 'The reference cell/range
+    Set browserSheet = ThisWorkbook.Worksheets("testBrowser").Range("A1") 'The reference cell/range
+    Set visualizationSheet = ThisWorkbook.Worksheets(visualizationSheetName).Range("A1") 'The reference cell/range
+    
+    
+    
+    'Clear the workarea
+    browserSheet.Range(browserSheet.Cells(1, 1), browserSheet.Cells(3000, 3000)).Clear
+
+    'Give message to user
+    browserSheet.Cells(2, 4).Font.Color = vbGreen
+    browserSheet.Cells(2, 4).Font.Bold = True
+    browserSheet.Cells(2, 4) = "Parsing PCP file..."
+    browserSheet.Cells(3, 4).Font.Color = vbGreen
+    browserSheet.Cells(3, 4) = "Please wait!"
+    'Sleep (1)
+    
+    '''''''''''''''''''''''''''''''''''
+    'Settings Parameters
+    '''''''''''''''''''''''''''''''''''
+    'Set the top most row from which insertion whould be made
+    Dim activeRow As Integer
+    'Row number to start placing data into excel sheet
+    activeRow = 2 'Keep the first row clear
+    
+    'The header substring and position variable
+    Dim headerRowNumber As Integer
+    Dim headerSubString As String
+    headerSubString = "#    ID TYPE"
+    
+    'The column number of the first payload byte
+    Dim payloadStartIdx As Integer
+    payloadStartIdx = 14
+    
+    ''''''''''''''''''''''''''''''''''''''''''''''''''
+    
+    
+    
+    'Open the file
+    Dim fileNum As Integer
+    Dim dataLine As String
+    fileNum = FreeFile()
+    Open strFileToOpen For Input As #fileNum
+    
+    
+    'Turn off screen updating to improve performance
+    Application.ScreenUpdating = False
+    'Application.DisplayStatusBar = False
+    'Application.EnableEvents = False
+    
+    'Loop control
+    Dim skipIteration As Boolean
+    Dim iterationCount As Integer
+    iterationCount = 0
+    Dim run As Boolean
+    run = True
+    
+    'Loop variables
+    Dim rowElementArray() As String
+    'Dim col As Integer
+    'col = 0
+    
+    'Parse the file and place content into the browser sheet
+    While Not EOF(fileNum) And run = True
+        Line Input #fileNum, dataLine ' read in data 1 line at a time
+        skipIteration = False
+        
+        'Debug.Print i
+        'Debug.Print dataLine
+        
+        'Skip certain lines in the CPC file (they apear to be empty)
+        If iterationCount = 3 Or iterationCount = 4 Or iterationCount = 8 Then
+            'Debug.Print "Skipped"
+            skipIteration = True
+        End If
+        
+        If skipIteration = False Then
+            'Remove the semicolon in the end of the line, if any.
+            If StrComp(Right(dataLine, 1), ";") = 0 Then 'Is the last character in line a ";"
+                dataLine = Left(dataLine, Len(dataLine) - 1) 'Take all but the right most character
+            End If
+            
+            'Split the elements
+            If InStr(1, dataLine, headerSubString, vbBinaryCompare) = 1 Then 'This row contains the column names and is 'space separated' and needs special treatment
+                headerRowNumber = activeRow 'Save the header row number
+                Debug.Print dataLine
+                'Remove unwanted SPACES (The order ensures correct removal)
+                dataLine = Replace(dataLine, "#    ", "") 'Remove the character
+                dataLine = Replace(dataLine, "   ", " ") 'Remove adjacent seperators fo 3 with 1
+                dataLine = Replace(dataLine, "  ", " ") 'Remove adjacent seperators fo 2 with 1
+                Debug.Print dataLine
+                rowElementArray() = Split(dataLine, " ") 'SPACE delimiter
+            Else
+                rowElementArray() = Split(dataLine, ",") 'COMMA delimiter
+            End If
+            
+            'Parse element by element
+            'col = 0 'Reinitialize
+            'For col = LBound(rowElementArray) To UBound(rowElementArray)
+                'browserSheet.Offset(activeRow, col) = rowElementArray(col)
+            'Next col
+            
+            'Identify a range, and place the entire array into it in one operation!
+            ' This is super fast, relative to placing element by element.
+            ' The range is a specific length on the activeRow. The length is set by the length of the rowElementArray.
+            browserSheet.Range(browserSheet.Cells(activeRow, 1), browserSheet.Cells(activeRow, UBound(rowElementArray) + 1)).value = rowElementArray
+            'One row inserted, move to next row
+            activeRow = activeRow + 1
+        End If
+        
+        If activeRow Mod (17 + 8 * 3) = 0 Then
+            'Debug.Print "Aborted"; iterationCount
+            'Application.ScreenUpdating = True
+            'run = False
+        End If
+        
+        iterationCount = iterationCount + 1
+    Wend
+    
+    If iterationCount > 3000 Then
+        Debug.Print "WARNING: This mcro is not designed to handle more than 300 lines of CPC file!!!"
+        Debug.Print "Please review the script and make nesesary changes."
+    End If
+    
+    Debug.Print "Parsing DONE!"
+    
+    'Allow the screen to be updated again
+    Application.ScreenUpdating = True
+    'Application.DisplayStatusBar = True
+    'Application.EnableEvents = True
+    
+    'Format cells
+    'browserSheet.Range(browserSheet.Cells(1, 15), browserSheet.Cells(1, 300)).ColumnWidth = browserSheet.Cells(1, 15).ColumnWidth
+    'Debug.Print browserSheet.Range(browserSheet.Cells(9, 13), browserSheet.Cells(9, 13)).ColumnWidth
+    
+    'Give message to user
+    browserSheet.Cells(2, 4).Font.Color = vbGreen
+    browserSheet.Cells(2, 4).Font.Bold = True
+    browserSheet.Cells(2, 4) = "Parsing DONE!"
+    browserSheet.Cells(3, 4).Font.Color = vbGreen
+    browserSheet.Cells(3, 4) = ""
+    'Sleep (1)
+    
+    'Exit Sub
+    
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' VISUALIZATION
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Debug.Print "-------------- VISUALIZATION ---------------"
+    
+    
+    
+    
+    '''''''''''''''''''
+    ' FOF DEV ONLY
+    '''''''''''''''''''
+    
+    'Clear the sheet
+    Range(visualizationSheet.Cells(10, 1), visualizationSheet.Cells(20 * 4 + 1, 14 * 8 * 4 + 4)).Clear
+    Range(visualizationSheet.Cells(1, 1), visualizationSheet.Cells(20 * 4 + 1, 14 * 8 * 4 + 4)).ColumnWidth = 1
+    
+    
+    '''''''''''''''''''''''''''''''
+    
+    'TODO Copying one Range to Another Range
+    'Range("A4:A5").Copy Destination:=Range("A6:A1001")
+    ' https://stackoverflow.com/questions/7504543/vba-simple-copying-one-range-to-another-range
+    
+    Dim sampleDL As Range
+    Dim sampleUL As Range
+    Dim sampleULS As Range
+    Dim sampleGAP As Range
+    Dim sampleSW As Range
+    Dim sampleExtCP As Range
+    Dim sampleLongCP As Range
+
+    Set sampleDL = visualizationSheet.Cells(3, 7)      'Only the color is valid
+    Set sampleUL = visualizationSheet.Cells(5, 7)      'Only the color is valid
+    Set sampleULS = visualizationSheet.Cells(7, 7)     'Only the color is valid
+    Set sampleGAP = visualizationSheet.Cells(2, 22)    'Only the color is valid
+    Set sampleSW = visualizationSheet.Cells(3, 22)     'Only the color is valid
+    Set sampleExtCP = visualizationSheet.Cells(4, 22)  'Only the border, border-color and border thickness is valid
+    Set sampleLongCP = visualizationSheet.Cells(5, 22) 'Only the text and test-color is valid
+    
+    '''''''''''''''''''''''''''''''
+    
+    
+    'Identify the upper left corner of the table to be created
+    Dim tableTopRow As Integer
+    Dim tableLeftCol As Integer
+    tableTopRow = 10
+    tableLeftCol = 3
+    
+    'Generate a reference range that is relative to the corner above
+    Dim ref As Range 'The 'corner' reference range
+    Set ref = visualizationSheet.Cells(tableTopRow, tableLeftCol)
+    
+    'Generate reference range on row basis
+    Dim refSlot As Range 'Reference to the active slot-row
+    Dim refSymbol As Range 'Reference to the active symbol row
+    Dim refCPRI As Range 'Reference to the active CPRI row
+    Set refSlot = ref.Offset(1, 1) 'The first row of slots
+    Set refSymbol = ref.Offset(2, 1) 'The first row of symbols
+    Set refCPRI = ref.Offset(3, 1) 'The first row of CPRI data
+    
+    '''''''''''''''''''''''''''
+    'Table parameters
+    '''''''''''''''''''''''''''
+    Const rowPeriodicity As Byte = 3 'Distance between 'like' rows (e.g. symbol rows)
+    Const subSymbolsPrSymbol As Byte = 4
+    Const symbolsPrSlot As Byte = 14
+    Const slotsPrSubFrame As Byte = 8
+    Const subFrameCount As Byte = 160 / slotsPrSubFrame
+    Const cellsPrSlot As Integer = subSymbolsPrSymbol * symbolsPrSlot
+    Const slotPrRadioFrame As Byte = 10 * slotsPrSubFrame
+    Const maxSymbolsPrSlot As Byte = 56
+    Const tAdvanceInSubSymbols As Byte = 3 'In sub-symbol count
+    
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' This converter is currently only designed for numerology 120kHz!
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    
+    'Clear the work-area
+    With Range(ref.Cells(1, 1), ref.Cells(20 * 3 + 1, 14 * 8 * 4 + 2))
+        .UnMerge
+        .Clear
+        .Interior.Color = RGB(255, 255, 255)
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .BorderAround ColorIndex:=1 'LineStyle:=xlLinear, Weight:=xlThin, ColorIndex:=3, Color:=RGB(0, 0, 0)  ',xlThin,xlColorIndexAutomatic,RGB(0,0,0),xlThemeColorAccent1        )
+    End With
+    
+    Range(ref.Cells(1, 1), ref.Cells(1, cellsPrSlot * slotsPrSubFrame)).ColumnWidth = 0.5
+    
+    'ref.Cells(1, 1).Interior.Color = RGB(255, 0, 0) 'Make the reference corner RED
+    'refSlot.Cells(1, 0).Interior.Color = RGB(0, 255, 0) 'Make the slot reference edge green
+    'refSymbol.Cells(1, 0).Interior.Color = RGB(0, 0, 255) 'Make the symbol reference edge blue
+    
+    'Turn off screen updating to improve performance
+    Application.ScreenUpdating = False
+            
+    'Don't forget to check the cell to be untuched before modifying! (DEBUGING)
+    
+    'TODO kill these, since they work badly with time-advancement across a slot boundary
+    Dim currentSymbolRowRef As Range 'Represents the range of the current slot's symbols
+    Dim currentCPRIRowRef As Range 'Represents the range of the current slot's CPRI adta representation
+    
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Loop control variables
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Dim idStr As String
+    Dim typeStr As String
+    
+    'Move the CPC row index to the row where the first AxC packet is placed
+    activeRow = headerRowNumber + 1 'The row we will start reading will be the row below the CPC field description (header)
+    
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Future work
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' Lock on to a single carrier for now, since all carriers use the same symbol structure per slot in the testbed.
+    ' To map all carriers independently is future work.
+    Dim pickedCarrierID As Byte
+    pickedCarrierID = 255 'Invalid
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    
+    Dim currentRadioFrame As Byte 'Current radio frame number as in the header of the AxC packet
+    Dim currentCarrierID As Byte 'Current carrier ID as in the SLOT-INFO
+    Dim currentSubFrame As Byte 'Current SubFrame number as in the SLOT-INFO
+    Dim currentSlotNbr As Byte 'Current slot number as in the SLOT-INFO
+
+    'The calculated position of the slot in the map
+    Dim slotRowPos As Integer
+    Dim slotVerticalPos As Integer
+    'Holds the slot index of the map as the slots are being read from the
+    Dim currentSlotIndex As Integer
+    
+    
+    Dim currentSpecificInfo As Byte 'This will be the specific info array index (starts from 0)
+    Dim startSymbol As Byte 'The start symbol of the slot-info message
+    Dim nbrOfSymbols As Byte 'Number of symbols in total (count)
+    Dim subSymbolSpan As Byte 'The length of the symbol in sub-symbols
+    Dim currentSubSymbolCell As Integer
+    
+    Dim specificInfo1 As Byte 'Each element in the symbol specific info is two bytes
+    Dim specificInfo2 As Byte 'The second byte
+    
+    'Field width adjusted data from specific info array
+    Dim symbolLength As Byte 'Holds only the current data
+    Dim symbolType As Byte
+    Dim symbolPower As Byte
+    
+    'Loop controlers
+    Dim run1 As Boolean
+    Dim sk As Boolean
+    
+    run1 = True 'Keep the loop running
+    
+    
+    
+    'Read the slot-info in the CPC line by line
+    Do While run1 = True
+        'Get the ID of the IQC packet
+        idStr = browserSheet.Cells(activeRow, 1)
+        'Debug.Print "activeRow: "; activeRow; " idStr: "; idStr
+        
+        'If this line unused, then quit the loop
+        If Len(idStr) = 0 Then
+            Debug.Print currentSlotNbr; " slots were generated"
+            Exit Do
+        End If
+        
+
+        'Do variable initialization based on the first AxC packet containing a SLOT-INFO
+        If pickedCarrierID = 255 And StrComp(idStr, "GENERIC") = 0 Then 'If pickedCarrierID is not yet set, and we have the correct type of IQC packet, then ...
+            'Get the carrier ID
+            pickedCarrierID = getHexByte(browserSheet.Cells(activeRow, PL_POS_CARRIER))
+            'Debug.Print "Carrier data: "; browserSheet.Cells(activeRow, PL_POS_CARRIER)
+            'Debug.Print "activeRow: "; activeRow; " / pickedCarrierID: "; pickedCarrierID
+            
+            'Get the slot number of the first slot in file and store it for later numbering of the slots as absolut value (total), and start from that number.
+            currentSlotIndex = getHexByte(browserSheet.Cells(activeRow, PL_POS_SLOT_NBR)) And PL_SLOT_NBR_msk 'Strip unrelated bits
+        End If
+        
+        'Get the TYPE of the IQC packet
+        typeStr = browserSheet.Cells(activeRow, 2)
+        'Debug.Print "typeStr: "; typeStr
+        
+        'We are only interested in a specific carrier ID, and skip the rest.
+        currentCarrierID = getHexByte(browserSheet.Cells(activeRow, PL_POS_CARRIER))
+        
+        'Debug.Print "currentCarrierID: "; currentCarrierID
+        'Debug.Print "pickedCarrierID: "; pickedCarrierID
+        
+        'Debug.Print "---- if ----"
+        
+        'If the AxC is a Generic and not FS_INFO, then be interested in this line
+        If StrComp(idStr, "GENERIC") = 0 And StrComp(typeStr, " AxC") = 0 And currentCarrierID = pickedCarrierID Then
+           Debug.Print "---- New packet: Correct packet-type and carrier-ID ----"
+
+            'Get the aboslute position of the slot from the AxC packet
+            currentRadioFrame = browserSheet.Cells(activeRow, HEAD_POS_RADIO_FRAME_NBR_F)
+            currentSubFrame = getHexByte(browserSheet.Cells(activeRow, PL_POS_SLOT_LENGTH_TYPE_AND_SUBFRAME)) And PL_SUBFRAME_NBR_msk 'Strip unrelated bits
+            currentSlotNbr = getHexByte(browserSheet.Cells(activeRow, PL_POS_SLOT_NBR)) And PL_SLOT_NBR_msk 'Strip unrelated bits
+            
+            'Debug.Print "currentRadioFrame: "; currentRadioFrame
+            'Debug.Print "currentSubFrame: "; currentSubFrame
+            'Debug.Print "currentSlotNbr: "; currentSlotNbr
+            'Debug.Print "currentCarrierID: "; currentCarrierID
+            
+            'Calculate the cell position of the slot, based on radio frame number, sub-frame number and slot-number.
+            
+            'slotRowPos and slotVerticalPos starts at 0
+            slotRowPos = Application.WorksheetFunction.RoundDown((currentRadioFrame * slotPrRadioFrame + currentSubFrame * slotsPrSubFrame + currentSlotNbr) / slotsPrSubFrame, 0)
+            slotVerticalPos = currentSlotNbr Mod slotsPrSubFrame
+            'Debug.Print "slotRowPos: "; slotRowPos
+            'Debug.Print "slotVerticalPos: "; slotVerticalPos
+
+            'Create the slot header of the slot
+            'The range marks the range of cells that encompass the light-gray name-header of the slot
+            With Range(refSlot.Cells(1 + rowPeriodicity * slotRowPos, 1 + cellsPrSlot * slotVerticalPos), refSlot.Cells(1 + rowPeriodicity * slotRowPos, cellsPrSlot * (slotVerticalPos + 1)))
+                .Merge
+                .HorizontalAlignment = xlCenter
+                .VerticalAlignment = xlCenter
+                .Interior.Color = RGB(242, 242, 242)
+                .Borders.Color = RGB(0, 0, 0)
+                .value = "RF: " & (currentRadioFrame) & " - SubFrame: " & (currentSubFrame) & " - SlotInSubframe: " & (currentSlotNbr) & " - Slot: " & currentSlotIndex 'Sets the slot number as in the SLOT-INFO
+            End With
+            
+            'Correcting for special case, since the issue is that the last line in CPC file is representing the first slot. We are now trying to put in the first slot in the map.
+            If currentRadioFrame = 0 And currentSubFrame = 0 And currentSlotNbr = 0 Then
+                With Range(refSlot.Cells(1 + rowPeriodicity * slotRowPos, 1 + cellsPrSlot * slotVerticalPos), refSlot.Cells(1 + rowPeriodicity * slotRowPos, cellsPrSlot * (slotVerticalPos + 1)))
+                    .value = "RF: " & (currentRadioFrame) & " - SubFrame: " & (currentSubFrame) & " - SlotInSubframe: " & (currentSlotNbr) & " - Slot: " & 0 'Sets the slot number to 0 as it should be for the first slot
+                End With
+            End If
+            
+            'Sleep (3000)
+            
+            'Create a reference to the symbol slot ref
+            Set currentSymbolRowRef = refSymbol.Cells(1 + rowPeriodicity * slotRowPos, 1 + cellsPrSlot * slotVerticalPos)
+            
+            startSymbol = getHexByte(browserSheet.Cells(activeRow, PL_POS_START_SYM))
+            nbrOfSymbols = getHexByte(browserSheet.Cells(activeRow, PL_POS_NBR_OF_SYM))
+            currentSpecificInfo = 0 'Start from the first specific info (index from 0)
+            currentSubSymbolCell = 1 'We start at cell 1 in the subsymbol-row by setting ofset to 0
+            
+            'Debug.Print "startSymbol: "; startSymbol
+            'Debug.Print "nbrOfSymbols: "; nbrOfSymbols
+            
+            'Turn off screen updating to improve performance
+            Application.ScreenUpdating = False
+            
+            'Process every symbol in the slot-info
+            While currentSpecificInfo < nbrOfSymbols '<= because we changed the indexing to 1-14
+                'Debug.Print "------------------------------"
+                subSymbolSpan = 1 'Initialize to 1: The symbol may be just one subsymbol length long (we update this later)
+                
+                'Debug.Print "Currently pointing at sub-symbol nbr: "; startSymbol + currentSpecificInfo
+                'Debug.Print "Currently pointing at symbol specific info nbr: "; currentSpecificInfo
+                
+                'Debug.Print "PL_POS_SPECIFIC_INFO_1 + (2 * currentSpecificInfo)): "; (PL_POS_SPECIFIC_INFO_1 + (2 * currentSpecificInfo))
+                'Debug.Print "PL_POS_SPECIFIC_INFO_1 + (2 * currentSpecificInfo) + 1): "; (PL_POS_SPECIFIC_INFO_1 + (2 * currentSpecificInfo) + 1)
+                
+                'Get the relevant bytes
+                specificInfo1 = getHexByte(browserSheet.Cells(activeRow, PL_POS_SPECIFIC_INFO_1 + (2 * currentSpecificInfo))) 'Offset by 0 (index = 0)
+                specificInfo2 = getHexByte(browserSheet.Cells(activeRow, PL_POS_SPECIFIC_INFO_1 + (2 * currentSpecificInfo) + 1)) 'Offset by 1 (index = 1)
+                'Form the field-data for usage
+                symbolLength = SHIFT_R(specificInfo1 And PL_SYMBOL_LENGTH_msk, PL_SYMBOL_LENGTH_pos)
+                symbolType = SHIFT_R(specificInfo1 And PL_SYMBOL_TYPE_msk, PL_SYMBOL_TYPE_pos)
+                symbolPower = SHIFT_R(specificInfo2 And PL_SYMBOL_POWER_msk, PL_SYMBOL_POWER_pos)
+                
+                'Debug.Print "symbolLength: "; symbolLength
+                'Debug.Print "symbolType: "; symbolType
+                'Debug.Print "symbolPower: "; symbolPower
+                
+                'Mark each symbol in the slot
+                If symbolType = SYMB_TYPE_DL Then
+                    '''''''''''''''''''''''''''''''''''''''''''
+                    ' DL (CP: Long, Short, Extended)
+                    '''''''''''''''''''''''''''''''''''''''''''
+                   'Debug.Print "DL symbol"
+                    subSymbolSpan = 4 'How many sub-symbols to grab for this slot, based on symbol length!
+                    
+                    'Copy the DL sample cell into this cell
+                    'sampleDL.Copy (currentSymbolRowRef(1, currentSubSymbolCell))
+                    
+                    'Debug.Print "currentSubSymbolCell: "; currentSubSymbolCell
+                    'currentSymbolRowRef(1, currentSubSymbolCell).value = 1
+                    
+                    'Grab DL characteristics
+                    With currentSymbolRowRef(1, currentSubSymbolCell)
+                        .Interior.Color = sampleDL.Interior.Color
+                    End With
+                    
+                    If currentSubSymbolCell = 14 Then
+                        Exit Sub
+                    End If
+                ElseIf symbolType = SYMB_TYPE_GAP Then
+                    '''''''''''''''''''''''''''''''''''''''''''
+                    ' GAP (Guard Period)
+                    '''''''''''''''''''''''''''''''''''''''''''
+                   'Debug.Print "GAP symbol"
+                    subSymbolSpan = 4 'How many sub-symbols to grab for this slot, based on symbol length!
+                    
+                    'Grab GAP characteristics
+                    With currentSymbolRowRef(1, currentSubSymbolCell)
+                        .Interior.Color = sampleGAP.Interior.Color
+                        .value = "G"
+                    End With
+                
+                ElseIf symbolType = SYMB_TYPE_SW Then
+                    '''''''''''''''''''''''''''''''''''''''''''
+                    ' S (Switch)
+                    '''''''''''''''''''''''''''''''''''''''''''
+                   'Debug.Print "Switch symbol"
+                    'Debug.Print "frontPageSheet.Range(optionRangeTimeAdv): "; frontPageSheet.Range(optionRangeTimeAdv).value
+                    If frontPageSheet.Range(optionRangeTimeAdv).value = 1 Then
+                        'subSymbolSpan = 4 - tAdvanceInSubSymbols '(Time-advance) How many sub-symbols to grab for this slot, based on symbol length!
+                        subSymbolSpan = 4
+                    Else
+                        subSymbolSpan = 4 '(Time-advance) How many sub-symbols to grab for this slot, based on symbol length!
+                    End If
+                    
+                    'Debug.Print "subSymbolSpan: "; subSymbolSpan
+                    'Debug.Print "currentSubSymbolCell: "; currentSubSymbolCell
+                    
+                    'Grab UL characteristics
+                    With currentSymbolRowRef(1, currentSubSymbolCell)
+                        .Interior.Color = sampleSW.Interior.Color
+                        .value = "S" 'sampleSW.value
+                    End With
+
+                ElseIf symbolType = SYMB_TYPE_UL Then
+                    '''''''''''''''''''''''''''''''''''''''''''
+                    ' UL (CP: Long, Short, Extended)
+                    '''''''''''''''''''''''''''''''''''''''''''
+                   'Debug.Print "UL symbol"
+                    subSymbolSpan = 4 'How many sub-symbols to grab for this slot, based on symbol length!
+                    
+                    'Do t-advance for the UL symbol (check previous sub-symbol in previous slot and see if it is unused (color = white))
+                    If currentSymbolRowRef(1, -1).Interior.Color = RGB(255, 255, 255) And currentSpecificInfo = 0 Then
+                        'currentSubSymbolCell = currentSubSymbolCell - tAdvanceInSubSymbols
+                    
+                        'Grab UL characteristics
+                        'With currentSymbolRowRef(1, currentSubSymbolCell - tAdvanceInSubSymbols)
+                        '    .Interior.Color = sampleUL.Interior.Color
+                        'End With
+                    Else
+
+                    End If
+                    'Grab UL characteristics
+                    With currentSymbolRowRef(1, currentSubSymbolCell)
+                        .Interior.Color = sampleUL.Interior.Color
+                    End With
+                    
+                ElseIf symbolType = SYMB_TYPE_ULS Then
+                    '''''''''''''''''''''''''''''''''''''''''''
+                    ' ULS (CP: Long, Short, Extended)
+                    '''''''''''''''''''''''''''''''''''''''''''
+                   'Debug.Print "ULS symbol"
+                    subSymbolSpan = 4 'How many sub-symbols to grab for this slot, based on symbol length!
+                    
+                    'Do t-advance for the UL symbol (check previous sub-symbol in previous slot and see if it is unused (color = white))
+                    'If currentSymbolRowRef(1, -1).Interior.Color = RGB(255, 255, 255) And currentSpecificInfo = 0 Then
+                    '    currentSubSymbolCell = currentSubSymbolCell - tAdvanceInSubSymbols
+                    '
+                    '    'Grab UL characteristics
+                    '    'With currentSymbolRowRef(1, currentSubSymbolCell - tAdvanceInSubSymbols)
+                    '    '    .Interior.Color = sampleUL.Interior.Color
+                    '    'End With
+                    'Else
+                    '
+                    'End If
+                    
+                    'Grab UL characteristics
+                    With currentSymbolRowRef(1, currentSubSymbolCell)
+                        .Interior.Color = sampleULS.Interior.Color
+                    End With
+                End If
+                
+                '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+                ' COMMON code for all symbol types
+                '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+                
+                ''''''''''''''''''''''''''''''''''''
+                ' Coversion of Cyclic prefix
+                ''''''''''''''''''''''''''''''''''''
+                
+                'Convert into 'Long CP'
+                If symbolLength = SYMB_LENGTH_L_CP Then
+                   'Debug.Print "Converting to 'Long CP'"
+                    'Grab long CP characteristics
+                    '(Value, font-color)
+                    With currentSymbolRowRef(1, currentSubSymbolCell)
+                        .value = sampleLongCP.value
+                        .Font.Color = sampleLongCP.Font.Color
+                    End With
+                End If
+                
+                'Convert into 'DL Extended CP'
+                If symbolLength = SYMB_LENGTH_EXT_CP Then
+                   'Debug.Print "Converting to 'Extended CP'"
+                    subSymbolSpan = 4 'TODO this needs updating
+                    'Grab Extended CP characteristics
+                    '(border, border-color and border thickness)
+                    With currentSymbolRowRef(1, currentSubSymbolCell)
+                        .value = sampleExtCP.value
+                        .Font.Color = sampleExtCP.Font.Color
+                        'TODO border-color and thickness
+                    End With
+                End If
+                
+                ''''''''''''''''''''''''''''''''''''
+                ' Detect OUT OF BOUNDS before merge
+                ''''''''''''''''''''''''''''''''''''
+                
+                'ERROR detection
+                If currentSubSymbolCell + subSymbolSpan - 1 > maxSymbolsPrSlot Then
+                    Debug.Print "======================================= ERROR ========================================"
+                    Debug.Print "ERROR: Too many sub-symbols used. We exceeded the span of total sub-symbols. Issue with slot-info?"
+                    Debug.Print "currentSubSymbolCell + subSymbolSpan - 1: "; currentSubSymbolCell + subSymbolSpan - 1
+                    Debug.Print "maxSymbolsPrSlot: "; maxSymbolsPrSlot
+                    'TODO Write something on the sheet
+                    Exit Sub
+                End If
+                
+                'Debug.Print "currentSubSymbolCell: "; currentSubSymbolCell; "currentSubSymbolCell + subSymbolSpan - 1: "; currentSubSymbolCell + subSymbolSpan - 1
+                'Format the symbol with merging and border color
+                With Range(currentSymbolRowRef(1, currentSubSymbolCell), currentSymbolRowRef(1, currentSubSymbolCell + subSymbolSpan - 1))
+                    .Merge
+                    .BorderAround Color:=RGB(0, 0, 0) ', XlBorderWeight:=xlThin
+                    .VerticalAlignment = xlCenter
+                    .HorizontalAlignment = xlCenter
+                End With
+                
+                'Debug.Print "currentSubSymbolCell: "; currentSubSymbolCell; " / currentSubSymbolCell + subSymbolSpan - 1: "; currentSubSymbolCell + subSymbolSpan - 1
+                'If currentSubSymbolCell = 60 Then
+                '    Debug.Print "currentSubSymbolCell - (subSymbolSpan - 1): "; currentSubSymbolCell - (subSymbolSpan - 1); " / currentSubSymbolCell: "; currentSubSymbolCell
+                '    'Format the symbol with merging and border color
+                '    With Range(currentSymbolRowRef(1, currentSubSymbolCell - (subSymbolSpan - 1)), currentSymbolRowRef(1, currentSubSymbolCell))
+                '       ' .Merge
+                '        .BorderAround Color:=RGB(0, 0, 0) ', XlBorderWeight:=xlThin
+                '        .VerticalAlignment = xlCenter
+                '        .HorizontalAlignment = xlCenter
+                '    End With
+                '    Range(currentSymbolRowRef(1, currentSubSymbolCell - (subSymbolSpan - 1)), currentSymbolRowRef(1, currentSubSymbolCell)).Merge
+                'Else
+                '    'Format the symbol with merging and border color
+                '    With Range(currentSymbolRowRef(1, currentSubSymbolCell), currentSymbolRowRef(1, currentSubSymbolCell + subSymbolSpan - 1))
+                '       ' .Merge
+                '        .BorderAround Color:=RGB(0, 0, 0) ', XlBorderWeight:=xlThin
+                '        .VerticalAlignment = xlCenter
+                '        .HorizontalAlignment = xlCenter
+                '    End With
+                '
+                '    Dim tempRange As Range
+                '    Set tempRange = currentSymbolRowRef(1, -tAdvanceInSubSymbols)
+                '    'Range(currentSymbolRowRef(1, currentSubSymbolCell), currentSymbolRowRef(1, currentSubSymbolCell + subSymbolSpan - 1)).Merge
+                '    Debug.Print "currentSubSymbolCell + 1: "; currentSubSymbolCell + 1; " / currentSubSymbolCell + subSymbolSpan: "; currentSubSymbolCell + subSymbolSpan
+                '    'Range(tempRange(1, currentSubSymbolCell + 1), tempRange(1, currentSubSymbolCell + subSymbolSpan)).Merge
+                'End If
+                
+                ''''''''''''''''''''''''''''''''''''''''
+                
+                'currentSymbolRowRef(1, currentSubSymbolCell).Interior.Color = RGB(255, (255 / 14) * currentSubSymbolCell, 255)
+                
+                'Increment all indexes
+                currentSubSymbolCell = currentSubSymbolCell + subSymbolSpan
+                currentSpecificInfo = currentSpecificInfo + 1
+            Wend
+            
+            'Allow the screen to be updated again
+            'Application.ScreenUpdating = True
+    
+            'Next slot to be generated
+            'currentSlotNbr = currentSlotNbr + 1
+            'currentSlotIndex = currentSlotIndex + 1
+        Else
+            'Debug.Print "Skipped packet!"
+        End If
+        
+        'Prepair to read the next row on sheet
+        activeRow = activeRow + 1
+    Loop
+    
+    Debug.Print "Finished adding all symbols!"
+    
+    
+    'For j = 0 To subFrameCount - 1 'Row (the slot rows)
+    '    For i = 0 To slotsPrSubFrame - 1 'column (the symbol columns)
+            'Debug.Print "-----------------------------------------------"
+            'Debug.Print 1 + rowPeriodicity * j; " "; 1 + browserSheet * i
+            'Debug.Print 1 + rowPeriodicity; " "; browserSheet * (i + 1)
+            
+    '        Debug.Print Cells(activeRow, 1)
+    '        Debug.Print activeRow
+            
+    '        Exit For
+            
+            'With Range(refSymbol.Cells(1 + rowPeriodicity * j, 1 + cellsPrSlot * i), refSlot.Cells(1 + rowPeriodicity * j, cellsPrSlot * (i + 1)))
+            '    .Merge
+            '    .HorizontalAlignment = xlCenter
+            '    .VerticalAlignment = xlCenter
+            '    .Interior.Color = RGB(242, 242, 242)
+            '    .Borders.Color = RGB(0, 0, 0)
+            '    .Value = "slot " & (j * 8 + i) 'Counts the slots
+            'End With
+    '    Next i
+    'Next j
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    Debug.Print "(in-line) Visualization DONE!"
+End Sub
+
+
+
+Sub generateVisualization()
+    Debug.Print "------------------ generateVisualization()-------------------"
+    'The name of the sheets to operate in
+    Dim browserSheetName        As String
+    Dim visualizationSheetName  As String
+    browserSheetName = "CPC file browser"
+    visualizationSheetName = "Visualized Output"
+    
+    'Creating reference to specific sheets
+    Dim browserSheet            As Range
+    Dim visualizationSheet      As Range
+'    Set browserSheet = ThisWorkbook.Worksheets(browserSheetName).Range("A1") 'The reference cell/range
+    Set browserSheet = ThisWorkbook.Worksheets("testBrowser").Range("A1") 'The reference cell/range
+    Set visualizationSheet = ThisWorkbook.Worksheets(visualizationSheetName).Range("A1") 'The reference cell/range
+    
+    'Clear the workarea
+    browserSheet.Range(browserSheet.Cells(1, 1), browserSheet.Cells(3000, 3000)).Clear
+    
+    
+    Debug.Print "Starting String to Integer conversion..."
+    
+    'Cells(17, 14).Value = CInt(Cells(17, 14))
+    
+    
+    
+    
+    'Turn off screen updating to improve performance
+    Application.ScreenUpdating = False
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    'Allow the screen to be updated again
+    Application.ScreenUpdating = True
+    
+    Debug.Print "Visualization DONE!"
+End Sub
+
+
+
+
+
+
