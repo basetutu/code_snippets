@@ -7,10 +7,17 @@ server: PX
 Database: SCE
 
 =============================================================================================
+
+# How to reverse accidental amend to previous commit:
+https://stackoverflow.com/questions/1459150/how-to-undo-git-commit-amend-done-instead-of-git-commit/1459264
+
 =============================================================================================
 =============================================================================================
 =============================================================================================
 =============================================================================================
+
+git config --global submodule.protocol/homekit.update none
+
 =============================================================================================
 
 # Document this here....
@@ -49,7 +56,7 @@ git clone ssh://user@git.example.com:/srv/git/my_project.git
 # If they have write permission into this folder, they automtically have push access
 
 
-# An alternative optionis to do all this remotely via ssh on the server
+# An alternative option is to do all this remotely via ssh on the server
 ssh root@git.example.com
 cd /srv/git/my_project.git
 git init --bare --shared
@@ -151,6 +158,11 @@ git reset HEAD~1
 https://git-scm.com/2011/07/11/reset.html
 # How to undo (almost) anything with Git
 https://github.com/blog/2019-how-to-undo-almost-anything-with-git
+
+=============================================================================================
+
+# How to remove files from git repo
+https://devconnected.com/how-to-remove-files-from-git-commit/
 
 =============================================================================================
 
@@ -279,6 +291,16 @@ https://blog.daftcode.pl/how-to-become-a-master-of-git-tags-b70fbd9609d9
 
 =============================================================================================
 
+# HOW TO PUSH LOCAL BRANCHES TO REMOTE
+
+# If you are publishing a local branch for the first time on a remote,
+# the "-u" option is helpful. It makes sure that a tracking connection
+# between the local and the newly created remote branch is established:
+
+git push -u origin <local-branch>
+
+=============================================================================================
+
 WORKING WITH REMOTES
 
 # Rename a remote from origin to sigma
@@ -309,31 +331,61 @@ git commit --amend --author="Saeed Ghasemi <saeed.ghasemi@sigma.se>"
 # to 'pick' and the others to 'squash'.
 git rebase -i HEAD~2
 
+=============================================================================================
+
+#Rebase a branch or feature-branch based on another branch than the one it was created from
+# checkout ot the feature branch that needs rebasing first, and then:
+git fetch --all
+git pull origin base-branch --rebase
+# origin here means that the base-branch is on remote git!
+
+# How to push to a remote branch:
+git push -f origin HEAD
+# -f here means 'forced' push
+# Push what ever is on my branch up towards the HEAD of the branch on to remote version of
+# the same branch (= the one that the branch was originaly created from or set as remote)
 
 =============================================================================================
-FRÅN HENRIK:
 
-Skapa diff och lägga på den
+# How to squash a large number of commits together from A to B: (where B is in the past of A)
+git branch my_A_branch <SHA>    # SHA of A
+git reset --soft <SHA>          # SHA of B
+git commit -m "Squash commits A through B"
+git format-patch HEAD           # To create a file of all these patches
+
+# Alternatively use a patch-file method:
+git diff B A > squash.patch
+
+# Apply and commit
+git checkout -b squash-branch B      # Create a new branch with HEAD pointing to B
+git apply squash.patch               # Apply the patch-file
+git commit -m "Squash commits A through B"
+
+=============================================================================================
+# FRÅN HENRIK:
+
+# Skapa diff och lägga på den
 ===========================
 git diff > sample.diff
 patch -p1 < sample.diff
 
 
-Skapa git .patch-filer av existerande commits
+# Skapa git .patch-filer av existerande commits
 ======================
-1. Hitta basen, dvs commit, där patchar skall utgå från med git log.    
-2. Anropa
-   $ git format-patch <SHA>
-   ex: $ git format-patch a59eb8bbb3d908e32435351f1554902cbc7e568
+# 1. Hitta basen, dvs commit, där patchar skall utgå från med git log.    
+# 2. Anropa
+     $ git format-patch <SHA>
+#    ex: $ git format-patch a59eb8bbb3d908e32435351f1554902cbc7e568
   
-   Nu skapas ett antal .patch-filer, en för varje commit sedan utvald bas.
+#    Nu skapas ett antal .patch-filer, en för varje commit sedan utvald bas.
 
-Applicera patcharna
+# Applicera patcharna
 ===================
-1. Hitta .patch-filerna och lägg i rätt folder
-2. Kör git am filename.patch för vrje patch som skall läggas på. Börja med '0001'-filen.
-   Ex: git am 0001-DRM-FW-extension.patch
-3. Kontrollera resultat med git log
+# 1. Hitta .patch-filerna och lägg i rätt folder
+# 2. Kör för varje patch som skall läggas på. Börja med '0001'-filen.
+     git am filename.patch
+#    Ex: git am 0001-DRM-FW-extension.patch
+# 3. Kontrollera resultat med git log
 
 # Create a patch-file between two branches in git
 ====================
@@ -375,7 +427,12 @@ git am file.patch
 
 =============================================================================================
 
-EXAMPLES OF cherry pick AND format patch
+# List the names of the files changed between two commits:
+git diff --name-only SHA1 SHA2
+
+=============================================================================================
+
+# EXAMPLES OF cherry pick AND format patch
 
 git fetch ssh://ghs1lr@rb-gerrit-ebike.de.bosch.com:29418/platform/apps/connectivity-test refs/changes/29/2329/1 && git cherry-pick FETCH_HEAD
 
@@ -470,6 +527,9 @@ cat .gitmodules
 # To remove the submodule
 git submodule deinit -f googletest/ # remove -f to not to force this
 
+# A all in one solution to get the latest from remote and recursively go through all submodules and even initialize newly defined submodules.
+git submodule update --recursive --remote --init
+
 =============================================================================================
 
 
@@ -515,6 +575,9 @@ $ repo start <new branch name> --all
 
 # Push local branches to remote git
 git push -u origin newLocalBranch
+
+# How to delete a remote branch
+git push origin --delete branch_name
 
 -------------------------------------------------------
 

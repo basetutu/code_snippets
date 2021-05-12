@@ -95,6 +95,33 @@ S, J
 # g for run
 # q for quit
 
+
+
+# Build z-wave booloader
+goto z-wave folder
+# Update the image in case it is changed
+docker build -t bootloader --file docker/build_bootloader.Dockerfile docker
+# build bootloader
+docker run --rm -v "%cd%\..\..":/super bootloader
+
+------------------------------------------------
+
+# For windows (How to flash th Silabs development board)
+
+# Erase all (not the bootloader)
+commander.exe device masserase -s 440178375
+commander.exe device reset
+# Erase all (not the bootloader), and then flash the device
+commander.exe flash --masserase -d Cortex-M4 -s 440178375 "C:/super/protocol/z-wave/build_docker/ZGM13/Apps/SensorPIR/ZW_SensorPir_7.14.2_ZGM130S_REGION_ANZ.hex"
+
+# It erases a memory reagion specified of the @<value>
+commander.exe device pageerase @lockbits
+commander.exe device pageerase @bootloader
+
+commander.exe device info
+
+commander readmem --range 0x0FE043CC:+16
+F7 5F 3F EE F7 1C 64 E8 CF 34 DA 89 E9 86 0A 75
 ------------------------------------------------
 # Make commands
 
