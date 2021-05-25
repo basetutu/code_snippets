@@ -1,0 +1,31 @@
+pyruvate-deydrogenase
+* 
+
+Acetyl-CoA --> 
+
+Part of TCA cycle:
+Alpha-Keto-Gluterate-Dehydrogenase
+* Not only involved in the breakdown of macronutrients.
+* Also part of neurotransmitter synthesis, like:
+* Glutamate, GABA, aspartate. (neurotransmitter inbalance)
+* 
+
+Co-factor to:
+Branch-chain-alpha-keto-acid-dehydrogenase
+involved in the conversion of lysine into isovaleryl-coA (related to amino-acid metabolism).
+
+
+Thiamine deficiency will hit all cells in the body! (chronic disorders ?)
+
+Thiamine is important for fat metabolism in the TCA cycle.
+
+When pyruvate-deydrogenase is inhibited, then pyruvate is rooted towards lactic acid.
+Glucose is then rooted towards the cori cycle, which recycles the lactic acid by the liver so that it can be used again.
+This process costs ATP to make glucose again from lactate.
+
+Not a good thing to create lactate in excesive amount.
+
+
+
+
+

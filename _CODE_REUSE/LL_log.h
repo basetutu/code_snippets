@@ -18,7 +18,7 @@
 
 #include "global_config.h"
 #include "global_types.h"
-#include "nrf_log_internal.h"
+#include "the_print_module.h"
 #include "logger_thread.h"
 
 #include "FreeRTOS.h"
